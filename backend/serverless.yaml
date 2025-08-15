@@ -1,0 +1,18 @@
+# serverless.yml
+service: affordability-api-backend
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: eu-central-1
+  environment: test
+  DB_HOST: localhost
+  DB_USER: postgres
+
+functions:
+  create_check:
+    handler: handler.createCheck
+    events:
+      - httpApi:
+          path: /checks
+          method: post

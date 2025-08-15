@@ -1,0 +1,13 @@
+# Dependencies
+/backend/node_modules
+/frontend/node_modules
+
+# Build files
+/frontend/build
+
+# Secrets
+.env
+backend/.env
+
+# Serverless artifacts
+.serverless/
