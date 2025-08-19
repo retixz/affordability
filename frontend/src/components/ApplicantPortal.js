@@ -49,7 +49,15 @@ const ApplicantPortal = () => {
         </p>
       </div>
       <div className="portal-footer">
-        <button className="start-check-button">Start Secure Check</button>
+        <button className="start-check-button" onClick={() => {
+          const tinkLink = 'https://link.tink.com/1.0/authorize/' +
+            '?client_id=' + process.env.REACT_APP_TINK_CLIENT_ID +
+            '&redirect_uri=' + encodeURIComponent('http://localhost:4000/callback/tink') +
+            '&scope=accounts:read,transactions:read' +
+            '&market=GB' +
+            '&state=' + token;
+          window.location.href = tinkLink;
+        }}>Start Secure Check</button>
       </div>
     </div>
   );
