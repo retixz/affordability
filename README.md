@@ -27,35 +27,19 @@ This project is configured for a simple, one-command startup process.
     ```
 
 2.  **Configure Environment Variables:**
-    You need to create two `.env` files for the project to run.
+    This project uses `.env` files for environment-specific configuration. Example files are provided in both the `backend` and `frontend` directories. **These `.env` files are included in `.gitignore` and should never be committed to version control.**
 
-    * **Backend Configuration:** Create a file at `backend/.env` and add the following content. Replace the Tink credentials with your sandbox keys.
-
+    *   **Backend:** Copy `backend/.env.example` to `backend/.env`.
+        ```bash
+        cp backend/.env.example backend/.env
         ```
-        # backend/.env
+        Then, fill in the required values in `backend/.env`, such as your `TINK_CLIENT_ID` and `TINK_CLIENT_SECRET`.
 
-        # DATABASE
-        DB_HOST=localhost
-        DB_USER=postgres
-        DB_PASSWORD=mysecretpassword
-        DB_DATABASE=postgres
-        DB_PORT=5432
-
-        # PORTAL - The URL of your local frontend app
-        PORTAL_HOST=localhost:3001
-
-        # TINK - Credentials for the backend to talk to Tink's API
-        TINK_CLIENT_ID=client_id_code_from_tink
-        TINK_CLIENT_SECRET=client_secret_code_from_tink
+    *   **Frontend:** Copy `frontend/.env.example` to `frontend/.env`.
+        ```bash
+        cp frontend/.env.example frontend/.env
         ```
-
-    * **Frontend Configuration:** Create a file at `frontend/.env` and add your Tink client ID. This is required by the Tink frontend SDK.
-
-        ```
-        # frontend/.env
-
-        REACT_APP_TINK_CLIENT_ID=client_id_code_from_tink
-        ```
+        Then, fill in the required `REACT_APP_TINK_CLIENT_ID` in `frontend/.env`.
 
 3.  **Install All Dependencies:**
     From the **root directory** of the project, run:

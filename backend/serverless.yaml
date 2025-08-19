@@ -4,6 +4,10 @@ service: affordability-api-backend
 plugins:
   - serverless-offline
 
+custom:
+  serverless-offline:
+    httpPort: ${env:LOCAL_API_PORT, 3000} # Uses env var, defaults to 3000
+
 provider:
   name: aws
   runtime: nodejs20.x
@@ -18,8 +22,9 @@ provider:
   environment:
     TINK_CLIENT_ID: ${env:TINK_CLIENT_ID}
     TINK_CLIENT_SECRET: ${env:TINK_CLIENT_SECRET}
-    PORTAL_HOST: 'localhost:3000'
+    PORTAL_HOST: ${env:PORTAL_HOST}
     JWT_SECRET: ${env:JWT_SECRET}
+    JWT_EXPIRATION_TIME: ${env:JWT_EXPIRATION_TIME}
 
 functions:
   getReport:
