@@ -19,6 +19,7 @@ provider:
     TINK_CLIENT_ID: ${env:TINK_CLIENT_ID}
     TINK_CLIENT_SECRET: ${env:TINK_CLIENT_SECRET}
     PORTAL_HOST: 'localhost:3000'
+    JWT_SECRET: ${env:JWT_SECRET}
 
 functions:
   getReport:
@@ -47,3 +48,21 @@ functions:
           method: get
   processTinkData:
     handler: handlers/processTinkData.processTinkData
+  register:
+    handler: handlers/auth.register
+    events:
+      - httpApi:
+          path: /register
+          method: post
+  login:
+    handler: handlers/auth.login
+    events:
+      - httpApi:
+          path: /login
+          method: post
+  getApplicants:
+    handler: handlers/getApplicants.getApplicants
+    events:
+      - httpApi:
+          path: /applicants
+          method: get

@@ -1,9 +1,11 @@
 'use strict';
 
 const db = require('../db');
+const { authorize } = require('../middleware/auth');
 
-module.exports.getReport = async (event) => {
+const getReportHandler = async (event) => {
   const { applicantId } = event.pathParameters;
+  const { landlordId } = event;
 
   if (!applicantId) {
     return {
@@ -23,15 +25,15 @@ module.exports.getReport = async (event) => {
         ar.verified_expenses_monthly
       FROM applicants a
       JOIN affordability_reports ar ON a.id = ar.applicant_id
-      WHERE a.id = $1;
+      WHERE a.id = $1 AND a.landlord_id = $2;
     `;
-    const values = [applicantId];
+    const values = [applicantId, landlordId];
     const result = await client.query(query, values);
 
     if (result.rows.length === 0) {
       return {
         statusCode: 404,
-        body: JSON.stringify({ error: 'Report not found.' }),
+        body: JSON.stringify({ error: 'Report not found or you do not have permission to view it.' }),
       };
     }
 
@@ -51,3 +53,5 @@ module.exports.getReport = async (event) => {
     }
   }
 };
+
+module.exports.getReport = authorize(getReportHandler);

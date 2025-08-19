@@ -1,18 +1,30 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import NewCheckModal from './NewCheckModal';
+import { getApplicants } from '../api';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [applicants, setApplicants] = useState([]);
+  const navigate = useNavigate();
 
-  // Mock data for applicants
-  const mockApplicants = [
-    { id: 1, fullName: 'John Doe', status: 'complete' },
-    { id: 2, fullName: 'Jane Smith', status: 'pending' },
-    { id: 3, fullName: 'Peter Jones', status: 'in_progress' },
-    { id: 4, fullName: 'Mary Williams', status: 'expired' },
-  ];
+  useEffect(() => {
+    const fetchApplicants = async () => {
+      try {
+        const { data } = await getApplicants();
+        setApplicants(data);
+      } catch (error) {
+        console.error('Failed to fetch applicants:', error);
+        // If unauthorized, redirect to login
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          navigate('/login');
+        }
+      }
+    };
+
+    fetchApplicants();
+  }, [navigate]);
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -22,13 +34,23 @@ const Dashboard = () => {
     setIsModalOpen(false);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    navigate('/login');
+  };
+
   return (
     <div className="dashboard">
       <header className="dashboard-header">
         <h1>Landlord Dashboard</h1>
-        <button className="new-check-button" onClick={handleOpenModal}>
-          + New Affordability Check
-        </button>
+        <div>
+          <button className="new-check-button" onClick={handleOpenModal}>
+            + New Affordability Check
+          </button>
+          <button className="logout-button" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
       </header>
       <main className="dashboard-main">
         <h2>Applicant Status</h2>
@@ -41,9 +63,9 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {mockApplicants.map(applicant => (
+            {applicants.map(applicant => (
               <tr key={applicant.id}>
-                <td>{applicant.fullName}</td>
+                <td>{applicant.full_name}</td>
                 <td>
                   <span className={`status status-${applicant.status}`}>
                     {applicant.status}

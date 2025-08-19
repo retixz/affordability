@@ -2,14 +2,16 @@
 
 const crypto = require('crypto');
 const db = require('../db');
+const { authorize } = require('../middleware/auth');
 
 const validateEmail = (email) => {
   const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(String(email).toLowerCase());
 };
 
-module.exports.createCheck = async (event) => {
+const createCheckHandler = async (event) => {
   const { fullName, email } = JSON.parse(event.body);
+  const { landlordId } = event;
 
   if (!fullName || typeof fullName !== 'string' || fullName.trim() === '') {
     return {
@@ -26,7 +28,6 @@ module.exports.createCheck = async (event) => {
   }
 
   const token = crypto.randomBytes(32).toString('hex');
-  const landlordId = 1; // Hardcoded for MVP
 
   let client;
   try {
@@ -57,3 +58,5 @@ module.exports.createCheck = async (event) => {
     }
   }
 };
+
+module.exports.createCheck = authorize(createCheckHandler);
