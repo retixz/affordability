@@ -120,7 +120,7 @@ module.exports.login = async (event) => {
       };
     }
 
-    const token = jwt.sign({ landlordId: user.id }, process.env.JWT_SECRET, { expiresIn: '8h' });
+    const token = jwt.sign({ landlordId: user.id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION_TIME || '8h' });
 
     return {
       statusCode: 200,
