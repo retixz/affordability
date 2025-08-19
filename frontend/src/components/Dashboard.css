@@ -34,6 +34,86 @@
   background-color: #0056b3;
 }
 
-.dashboard-main {
-  color: #555;
+.dashboard-main h2 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.applicant-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.applicant-table th,
+.applicant-table td {
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.applicant-table th {
+  background-color: #f7f7f7;
+  font-weight: 600;
+}
+
+.applicant-table tr:nth-child(even) {
+  background-color: #fdfdfd;
+}
+
+.applicant-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-complete {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-in_progress {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.status-expired {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.view-report-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.view-report-button:hover {
+  background-color: #218838;
+}
+
+.view-report-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }

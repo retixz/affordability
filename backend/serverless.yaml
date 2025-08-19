@@ -21,6 +21,12 @@ provider:
     PORTAL_HOST: 'localhost:3000'
 
 functions:
+  getReport:
+    handler: handler.getReport
+    events:
+      - httpApi:
+          path: /reports/{applicantId}
+          method: get
   handleTinkCallback:
     handler: handler.handleTinkCallback
     events:
