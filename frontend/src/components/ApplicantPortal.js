@@ -13,7 +13,7 @@ const ApplicantPortal = () => {
     const validateToken = async () => {
       try {
         // In a real app, the base URL would come from an environment variable
-        const response = await axios.get(`http://localhost:4000/checks/${token}`);
+        const response = await axios.get(`http://localhost:3000/checks/${token}`);
         setData(response.data);
       } catch (err) {
         setError('This link is invalid or has expired.');
@@ -52,7 +52,7 @@ const ApplicantPortal = () => {
         <button className="start-check-button" onClick={() => {
           const tinkLink = 'https://link.tink.com/1.0/authorize/' +
             '?client_id=' + process.env.REACT_APP_TINK_CLIENT_ID +
-            '&redirect_uri=' + encodeURIComponent('http://localhost:4000/callback/tink') +
+            '&redirect_uri=' + encodeURIComponent('http://localhost:3000/callback/tink') +
             '&scope=accounts:read,transactions:read' +
             '&market=GB' +
             '&state=' + token;
