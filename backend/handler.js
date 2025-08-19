@@ -3,6 +3,7 @@
 require('dotenv').config();
 const crypto = require('crypto');
 const { Client } = require('pg');
+const axios = require('axios');
 
 const validateEmail = (email) => {
   const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -62,6 +63,72 @@ module.exports.createCheck = async (event) => {
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'Internal Server Error' }),
+    };
+  } finally {
+    await client.end();
+  }
+};
+
+module.exports.handleTinkCallback = async (event) => {
+  const { code, state: secureLinkToken } = event.queryStringParameters;
+
+  if (!code) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Tink callback error: No code provided.' }),
+    };
+  }
+
+  const dbConfig = {
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    port: process.env.DB_PORT,
+  };
+
+  const client = new Client(dbConfig);
+  await client.connect();
+
+  try {
+    // Exchange the authorization code for an access token
+    const response = await axios.post('https://api.tink.com/api/v1/oauth/token', new URLSearchParams({
+      code: code,
+      client_id: process.env.TINK_CLIENT_ID,
+      client_secret: process.env.TINK_CLIENT_SECRET,
+      grant_type: 'authorization_code'
+    }), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+
+    const accessToken = response.data.access_token;
+    console.log('Successfully received Tink access token:', accessToken);
+
+    // Update the applicant's status to 'in_progress'
+    const updateQuery = `
+      UPDATE applicants
+      SET status = 'in_progress'
+      WHERE secure_link_token = $1;
+    `;
+    await client.query(updateQuery, [secureLinkToken]);
+
+    // Redirect the user to the success page
+    const successUrl = `https://${process.env.PORTAL_HOST}/check/success`;
+    return {
+      statusCode: 302,
+      headers: {
+        Location: successUrl,
+      },
+    };
+
+  } catch (error) {
+    console.error('Error in Tink callback handler:', error.response ? error.response.data : error.message);
+    // TODO: Redirect to a failure page
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'An error occurred during the Tink flow.' }),
     };
   } finally {
     await client.end();

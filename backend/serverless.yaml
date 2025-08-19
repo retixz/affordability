@@ -8,8 +8,18 @@ provider:
   name: aws
   runtime: nodejs20.x
   region: eu-central-1
-  
+  environment:
+    TINK_CLIENT_ID: ${env:TINK_CLIENT_ID}
+    TINK_CLIENT_SECRET: ${env:TINK_CLIENT_SECRET}
+    PORTAL_HOST: 'localhost:3000'
+
 functions:
+  handleTinkCallback:
+    handler: handler.handleTinkCallback
+    events:
+      - httpApi:
+          path: /callback/tink
+          method: get
   create_check:
     handler: handler.createCheck
     events:
