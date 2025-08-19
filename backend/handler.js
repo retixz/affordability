@@ -111,6 +111,64 @@ module.exports.processTinkData = async (event) => {
   }
 };
 
+module.exports.getReport = async (event) => {
+  const { applicantId } = event.pathParameters;
+
+  if (!applicantId) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Applicant ID is required.' }),
+    };
+  }
+
+  const dbConfig = {
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    port: process.env.DB_PORT,
+  };
+
+  const client = new Client(dbConfig);
+
+  try {
+    await client.connect();
+
+    const query = `
+      SELECT
+        a.full_name,
+        ar.affordability_score,
+        ar.verified_income_monthly,
+        ar.verified_expenses_monthly
+      FROM applicants a
+      JOIN affordability_reports ar ON a.id = ar.applicant_id
+      WHERE a.id = $1;
+    `;
+    const values = [applicantId];
+    const result = await client.query(query, values);
+
+    if (result.rows.length === 0) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ error: 'Report not found.' }),
+      };
+    }
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify(result.rows[0]),
+    };
+  } catch (error) {
+    console.error('Database error:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Internal Server Error' }),
+    };
+  } finally {
+    await client.end();
+  }
+};
+
 module.exports.createCheck = async (event) => {
 
   const { fullName, email } = JSON.parse(event.body);
