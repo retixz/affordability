@@ -291,14 +291,18 @@ module.exports.handleTinkCallback = async (event) => {
       rawTinkData: transactions, // Also pass the original raw data
     };
 
-    const invokeParams = {
-      FunctionName: `affordability-api-backend-dev-processTinkData`, // Adjust stage 'dev' as needed
-      InvocationType: 'Event', // Ensures the function is invoked asynchronously
-      Payload: JSON.stringify(payload),
-    };
+    // const invokeParams = {
+    //   FunctionName: `affordability-api-backend-dev-processTinkData`, // Adjust stage 'dev' as needed
+    //   InvocationType: 'Event', // Ensures the function is invoked asynchronously
+    //   Payload: JSON.stringify(payload),
+    // };
 
-    await lambda.invoke(invokeParams).promise();
+    // await lambda.invoke(invokeParams).promise();
+    // console.log(`Successfully queued processing for applicant ID: ${applicantId}`);
+
+    await module.exports.processTinkData(payload);
     console.log(`Successfully queued processing for applicant ID: ${applicantId}`);
+
 
     // Immediately update the applicant's status to 'in_progress'
     await client.query("UPDATE applicants SET status = 'in_progress' WHERE id = $1", [applicantId]);

@@ -8,12 +8,12 @@ provider:
   name: aws
   runtime: nodejs20.x
   region: eu-central-1
-  iam:
-    role:
-      statements:
-        - Effect: "Allow"
-          Action: "lambda:InvokeFunction"
-          Resource: "arn:aws:lambda:${aws:region}:${aws:accountId}:function:${self:service}-${sls:stage}-processTinkData"
+  # iam:
+  #   role:
+  #     statements:
+  #       - Effect: "Allow"
+  #         Action: "lambda:InvokeFunction"
+  #         Resource: "arn:aws:lambda:${aws:region}:${aws:accountId}:function:${self:service}-${sls:stage}-processTinkData"
 
   environment:
     TINK_CLIENT_ID: ${env:TINK_CLIENT_ID}

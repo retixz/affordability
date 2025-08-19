@@ -15,7 +15,7 @@ const ReportView = () => {
       try {
         setIsLoading(true);
         // In a real app, the base URL would come from an environment variable
-        const response = await axios.get(`http://localhost:3001/reports/${applicantId}`);
+        const response = await axios.get(`http://localhost:3000/reports/${applicantId}`);
         setReportData(response.data);
       } catch (err) {
         setError(err.response?.data?.error || 'An unexpected error occurred while fetching the report.');
