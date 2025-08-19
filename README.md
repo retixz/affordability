@@ -41,6 +41,12 @@ We use Docker to run a local PostgreSQL instance.
     * Using a database client of your choice (DBeaver, TablePlus, etc.), connect to the local PostgreSQL instance.
     * Execute the contents of the `Database_Schema.sql` file to create the necessary tables.
 
+3.  **Seed the Database:**
+    * The application requires at least one landlord to exist in the database to create applicants. Run the following SQL command to create a test landlord:
+    ```sql
+    INSERT INTO landlords (id, email, company_name, password_hash) VALUES (1, 'test@landlord.com', 'Test Properties Inc.', 'some_dummy_hash');
+    ```
+
 ### 3. Backend Setup
 
 1.  **Navigate to the backend directory:**
@@ -62,13 +68,11 @@ We use Docker to run a local PostgreSQL instance.
     DB_PORT=5432
     DB_USER=postgres
     DB_PASSWORD=mysecretpassword
-    DB_NAME=postgres
-
-    # Add other secrets like Tink API keys here later
+    DB_DATABASE=postgres
+    PORTAL_HOST=dummyportalhost
     ```
 
 4.  **Run the local server:**
-    The Serverless Framework has a plugin to simulate the API Gateway and Lambda environment locally.
     ```bash
     serverless offline start
     ```

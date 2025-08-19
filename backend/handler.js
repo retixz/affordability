@@ -1,5 +1,6 @@
 'use strict';
 
+require('dotenv').config();
 const crypto = require('crypto');
 const { Client } = require('pg');
 
@@ -9,6 +10,7 @@ const validateEmail = (email) => {
 };
 
 module.exports.createCheck = async (event) => {
+
   const { fullName, email } = JSON.parse(event.body);
 
   if (!fullName || typeof fullName !== 'string' || fullName.trim() === '') {
@@ -49,8 +51,7 @@ module.exports.createCheck = async (event) => {
     const values = [fullName, email, landlordId, token];
     await client.query(query, values);
 
-    // This is hardcoded for now, but should be replaced with a dynamic domain
-    const secureLink = `https://[YOUR_APP_DOMAIN]/check/${token}`;
+    const secureLink = `https://${process.env.PORTAL_HOST}/check/${token}`;
 
     return {
       statusCode: 201,
