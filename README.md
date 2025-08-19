@@ -98,6 +98,16 @@ We use Docker to run a local PostgreSQL instance.
 
 ---
 
+## Project Documentation
+
+This project includes detailed documentation to assist developers and stakeholders. All documentation is located in the `/docs` directory.
+
+- **[ADR-001: Technology Stack Selection](./docs/ADR-001_Tech_Stack.md):** An Architectural Decision Record explaining the choices for the frontend, backend, and database technologies.
+- **[Database Schema](./docs/Database_Schema.md):** A detailed description of the PostgreSQL database schema, including table structures and relationships.
+- **[API Endpoints](./docs/API_Endpoints.md):** Comprehensive documentation for all available API endpoints.
+
+---
+
 ## Deployment
 
 The frontend can be deployed to any static hosting provider (AWS S3, Vercel, Netlify). The backend is designed for serverless deployment to AWS.

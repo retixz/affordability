@@ -22,28 +22,28 @@ provider:
 
 functions:
   getReport:
-    handler: handler.getReport
+    handler: handlers/getReport.getReport
     events:
       - httpApi:
           path: /reports/{applicantId}
           method: get
   handleTinkCallback:
-    handler: handler.handleTinkCallback
+    handler: handlers/handleTinkCallback.handleTinkCallback
     events:
       - httpApi:
           path: /callback/tink
           method: get
   create_check:
-    handler: handler.createCheck
+    handler: handlers/createCheck.createCheck
     events:
       - httpApi:
           path: /checks
           method: post
   validate_check:
-    handler: handler.validateCheck
+    handler: handlers/validateCheck.validateCheck
     events:
       - httpApi:
           path: /checks/{token}
           method: get
   processTinkData:
-    handler: handler.processTinkData
+    handler: handlers/processTinkData.processTinkData
