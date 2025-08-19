@@ -16,3 +16,9 @@ functions:
       - httpApi:
           path: /checks
           method: post
+  validate_check:
+    handler: handler.validateCheck
+    events:
+      - httpApi:
+          path: /checks/{token}
+          method: get
