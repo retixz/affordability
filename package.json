@@ -1,0 +1,17 @@
+{
+  "name": "affordability-api-monorepo",
+  "version": "1.0.0",
+  "description": "Root package for the Affordability API project to orchestrate development tasks.",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm run install:all",
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
+    "start:db": "docker run --name affordability-db -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 -d postgres || docker start affordability-db",
+    "start:backend": "cd backend && serverless offline start",
+    "start:frontend": "cd frontend && npm start",
+    "dev": "concurrently \"npm:start:db\" \"npm:start:backend\" \"npm:start:frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

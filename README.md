@@ -6,95 +6,87 @@ Affordability API is a B2B micro-SaaS designed to provide real-time income and e
 
 ## Tech Stack
 
-This project is a monorepo containing two main packages:
+This project is a monorepo containing two main packages orchestrated by a root `package.json` file:
 
-* **Frontend:** A React single-page application that provides the user interface for our clients (landlords) and their applicants.
-* **Backend:** A serverless API built with Node.js and the Serverless Framework, running on AWS Lambda.
-* **Database:** PostgreSQL, chosen for its reliability and robust support for JSONB data types.
+* **Frontend:** A React single-page application.
+* **Backend:** A serverless API built with Node.js and the Serverless Framework.
+* **Database:** PostgreSQL, run via Docker for local development.
 
 ---
 
-## Getting Started: Local Development
+## Getting Started: The Streamlined Local Development Workflow
 
-Follow these instructions to get the entire application running on your local machine for development and testing purposes.
+This project is configured for a simple, one-command startup process.
 
-### 1. Prerequisites
+### Step 1: First-Time Setup
 
-Ensure you have the following tools installed on your system:
-
-* **Node.js & npm:** [Download here](https://nodejs.org/)
-* **Docker:** [Download here](https://www.docker.com/products/docker-desktop) (for running the database)
-* **AWS CLI:** [Installation Guide](https://aws.amazon.com/cli/)
-* **Serverless Framework:** `npm install -g serverless`
-
-### 2. Database Setup
-
-We use Docker to run a local PostgreSQL instance.
-
-1.  **Start the PostgreSQL container:**
+1.  **Clone the Repository:**
     ```bash
-    docker run --name affordability-db -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 -d postgres
+    git clone [https://github.com/retixz/affordability.git]
+    cd affordability-api
     ```
-    *This command will start a PostgreSQL server on `localhost:5432` with the password `mysecretpassword`.*
 
-2.  **Create the Database Schema:**
-    * Using a database client of your choice (DBeaver, TablePlus, etc.), connect to the local PostgreSQL instance.
-    * Execute the contents of the `Database_Schema.sql` file to create the necessary tables.
+2.  **Configure Environment Variables:**
+    You need to create two `.env` files for the project to run.
 
-3.  **Seed the Database:**
-    * The application requires at least one landlord to exist in the database to create applicants. Run the following SQL command to create a test landlord:
+    * **Backend Configuration:** Create a file at `backend/.env` and add the following content. Replace the Tink credentials with your sandbox keys.
+
+        ```
+        # backend/.env
+
+        # DATABASE
+        DB_HOST=localhost
+        DB_USER=postgres
+        DB_PASSWORD=mysecretpassword
+        DB_DATABASE=postgres
+        DB_PORT=5432
+
+        # PORTAL - The URL of your local frontend app
+        PORTAL_HOST=localhost:3001
+
+        # TINK - Credentials for the backend to talk to Tink's API
+        TINK_CLIENT_ID=client_id_code_from_tink
+        TINK_CLIENT_SECRET=client_secret_code_from_tink
+        ```
+
+    * **Frontend Configuration:** Create a file at `frontend/.env` and add your Tink client ID. This is required by the Tink frontend SDK.
+
+        ```
+        # frontend/.env
+
+        REACT_APP_TINK_CLIENT_ID=client_id_code_from_tink
+        ```
+
+3.  **Install All Dependencies:**
+    From the **root directory** of the project, run:
+    ```bash
+    npm install
+    ```
+    *This single command will install the root dependencies and automatically trigger the installation for both the `backend` and `frontend` workspaces.*
+
+4.  **Seed the Database:**
+    * The application requires at least one landlord to exist for testing. First, ensure Docker is running. Then, start the database container manually for the first time to apply the schema.
+    ```bash
+    # In the root directory, start the database
+    npm run start:db
+    ```
+    * Connect to the database (running on `localhost:5432`) with any SQL client and execute the contents of `Database_Schema.sql`.
+    * Then, run the following command to create a test landlord:
     ```sql
     INSERT INTO landlords (id, email, company_name, password_hash) VALUES (1, 'test@landlord.com', 'Test Properties Inc.', 'some_dummy_hash');
     ```
 
-### 3. Backend Setup
+### Step 2: Daily Development
 
-1.  **Navigate to the backend directory:**
+1.  **Start the Entire Environment:**
+    From the **root directory**, run the single command:
     ```bash
-    cd backend
+    npm run dev
     ```
+    *This will concurrently start the database container, the backend serverless API, and the frontend React app. You will see the logs for all services in one terminal.*
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-
-3.  **Create environment file:**
-    Create a file named `.env` in the `backend` directory. This file will hold your local secrets and should **not** be committed to Git.
-    ```
-    # backend/.env
-
-    DB_HOST=localhost
-    DB_PORT=5432
-    DB_USER=postgres
-    DB_PASSWORD=mysecretpassword
-    DB_DATABASE=postgres
-    PORTAL_HOST=dummyportalhost
-    ```
-
-4.  **Run the local server:**
-    ```bash
-    serverless offline start
-    ```
-    *Your backend API should now be running at `http://localhost:3000`.*
-
-### 4. Frontend Setup
-
-1.  **Navigate to the frontend directory (from the root):**
-    ```bash
-    cd frontend
-    ```
-
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-
-3.  **Run the development server:**
-    ```bash
-    npm start
-    ```
-    *The React application will open and run at `http://localhost:3001` (or another available port).*
+2.  **Stop Everything:**
+    Press `Ctrl + C` in the terminal where `npm run dev` is running to stop all services.
 
 ---
 
@@ -110,16 +102,13 @@ This project includes detailed documentation to assist developers and stakeholde
 
 ## Deployment
 
-The frontend can be deployed to any static hosting provider (AWS S3, Vercel, Netlify). The backend is designed for serverless deployment to AWS.
-
-To deploy the backend:
+To deploy the backend to your configured AWS account:
 
 1.  **Navigate to the backend directory:**
     ```bash
     cd backend
     ```
 2.  **Deploy the service:**
-    Ensure your AWS credentials are configured correctly, then run:
     ```bash
     serverless deploy
     ```
