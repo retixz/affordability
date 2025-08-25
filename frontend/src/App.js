@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
 import Dashboard from './components/Dashboard';
 import ApplicantPortal from './components/ApplicantPortal';
 import SuccessPage from './components/SuccessPage';
@@ -8,16 +10,20 @@ import Login from './components/Login';
 import Register from './components/Register';
 import ProtectedRoute from './components/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
+import Billing from './pages/Billing';
 import './App.css';
+
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
 function App() {
   return (
     <Router>
       <div className="App">
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
+        <Elements stripe={stripePromise}>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/check/success" element={<SuccessPage />} />
           <Route path="/check/:token" element={<ApplicantPortal />} />
@@ -26,8 +32,10 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/report/:applicantId" element={<ReportView />} />
+            <Route path="/billing" element={<Billing />} />
           </Route>
         </Routes>
+        </Elements>
       </div>
     </Router>
   );

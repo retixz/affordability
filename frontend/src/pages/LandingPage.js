@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaShieldAlt, FaPiggyBank, FaClock, FaChartLine, FaTabletAlt, FaCheckCircle } from 'react-icons/fa';
+import Pricing from '../components/Pricing';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -114,62 +115,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section className="py-20 px-6">
-        <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold">Simple, Transparent Pricing</h2>
-            <p className="text-gray-600">Choose the plan that's right for you. Cancel anytime.</p>
-          </div>
-          <div className="grid lg:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {/* Starter Plan */}
-            <div className="border rounded-lg p-8 flex flex-col">
-              <h3 className="text-2xl font-bold mb-4">Starter</h3>
-              <div className="text-4xl font-bold mb-4">
-                $29<span className="text-lg font-normal text-gray-500">/mo</span>
-              </div>
-              <ul className="text-gray-600 mb-8 flex-grow">
-                <li className="mb-2">5 Checks per month</li>
-                <li className="mb-2">Email support</li>
-              </ul>
-              <Link to="/register" className="w-full text-center bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg hover:bg-gray-300">
-                Get Started
-              </Link>
-            </div>
-            {/* Pro Plan */}
-            <div className="border-2 border-indigo-600 rounded-lg p-8 flex flex-col relative">
-              <div className="absolute top-0 -translate-y-1/2 bg-indigo-600 text-white text-sm font-bold px-3 py-1 rounded-full">Most Popular</div>
-              <h3 className="text-2xl font-bold mb-4">Pro</h3>
-              <div className="text-4xl font-bold mb-4">
-                $79<span className="text-lg font-normal text-gray-500">/mo</span>
-              </div>
-              <ul className="text-gray-600 mb-8 flex-grow">
-                <li className="mb-2">20 Checks per month</li>
-                <li className="mb-2">Priority email support</li>
-                <li className="mb-2">API Access</li>
-              </ul>
-              <Link to="/register" className="w-full text-center bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700">
-                Choose Pro
-              </Link>
-            </div>
-            {/* Business Plan */}
-            <div className="border rounded-lg p-8 flex flex-col">
-              <h3 className="text-2xl font-bold mb-4">Business</h3>
-               <div className="text-4xl font-bold mb-4">
-                $149<span className="text-lg font-normal text-gray-500">/mo</span>
-              </div>
-              <ul className="text-gray-600 mb-8 flex-grow">
-                <li className="mb-2">50 Checks per month</li>
-                <li className="mb-2">Phone & email support</li>
-                <li className="mb-2">Team member access</li>
-              </ul>
-              <Link to="/register" className="w-full text-center bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg hover:bg-gray-300">
-                Get Started
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Pricing />
 
       {/* Final CTA / Footer */}
       <footer className="bg-gray-800 text-white py-12 px-6">

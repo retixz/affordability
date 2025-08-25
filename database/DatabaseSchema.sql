@@ -5,7 +5,10 @@ CREATE TABLE landlords (
     company_name VARCHAR(255),
     password_hash VARCHAR(255) NOT NULL,
     subscription_plan VARCHAR(50) DEFAULT 'starter',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    stripe_customer_id VARCHAR(255),
+    stripe_subscription_id VARCHAR(255),
+    subscription_status VARCHAR(50)
 );
 
 -- Table for the rental applicants being checked
@@ -28,4 +31,14 @@ CREATE TABLE affordability_reports (
     verified_expenses_monthly NUMERIC(10, 2),
     report_data JSONB, -- To store the raw categorized data from the aggregator
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create usage_records Table: This table is essential for tracking monthly usage.
+CREATE TABLE usage_records (
+    id SERIAL PRIMARY KEY,
+    landlord_id INTEGER REFERENCES landlords(id),
+    check_count INTEGER DEFAULT 0,
+    month INTEGER NOT NULL,
+    year INTEGER NOT NULL,
+    UNIQUE (landlord_id, month, year)
 );
