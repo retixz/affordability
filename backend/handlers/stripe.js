@@ -60,18 +60,23 @@ const PRICE_ID_TO_PLAN = {
 };
 
 const stripeWebhook = async (event) => {
-    const sig = event.headers['stripe-signature'];
-    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
     let stripeEvent;
-    try {
-        stripeEvent = stripe.webhooks.constructEvent(event.body, sig, endpointSecret);
-    } catch (err) {
-        console.log(`⚠️  Webhook signature verification failed.`, err.message);
-        return {
-            statusCode: 400,
-            body: `Webhook Error: ${err.message}`
-        };
+
+    // Skip signature verification in local/offline mode
+    if (process.env.IS_OFFLINE) {
+        stripeEvent = JSON.parse(event.body);
+    } else {
+        const sig = event.headers['stripe-signature'];
+        const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+        try {
+            stripeEvent = stripe.webhooks.constructEvent(event.body, sig, endpointSecret);
+        } catch (err) {
+            console.log(`⚠️  Webhook signature verification failed.`, err.message);
+            return {
+                statusCode: 400,
+                body: `Webhook Error: ${err.message}`
+            };
+        }
     }
 
     const client = await getClient();

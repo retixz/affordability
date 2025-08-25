@@ -26,7 +26,7 @@ provider:
     JWT_SECRET: ${env:JWT_SECRET}
     JWT_EXPIRATION_TIME: ${env:JWT_EXPIRATION_TIME}
     STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}
-    STRIPE_WEBHOOK_SECRET: ${env:STRIPE_WEBHOOK_SECRET}
+    STRIPE_WEBHOOK_SECRET: ${env:STRIPE_WEBHOOK_SECRET, 'local-secret'}
 
 functions:
   createCheckoutSession:
