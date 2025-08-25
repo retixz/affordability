@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaShieldAlt, FaPiggyBank, FaClock, FaChartLine } from 'react-icons/fa';
+import { FaShieldAlt, FaPiggyBank, FaClock, FaChartLine, FaTabletAlt, FaCheckCircle } from 'react-icons/fa';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -13,29 +13,40 @@ const LandingPage = () => {
   }, [navigate]);
 
   return (
-    <div className="bg-gray-50 text-gray-800">
+    <div className="bg-white text-neutral-text font-sans">
       {/* Header */}
       <header className="container mx-auto px-6 py-4 flex justify-between items-center">
-        <div className="text-2xl font-bold text-indigo-600">Affordability API</div>
+        <div className="text-2xl font-bold text-primary-blue">Affordability API</div>
         <nav>
-          <Link to="/login" className="text-gray-600 hover:text-indigo-600 px-4">Login</Link>
-          <Link to="/register" className="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700">
+          <Link to="/login" className="text-neutral-text hover:text-primary-blue px-4">Login</Link>
+          <Link to="/register" className="bg-primary-blue text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">
             Sign Up for Free
           </Link>
         </nav>
       </header>
 
       {/* Hero Section */}
-      <section className="text-center py-20 px-6 bg-white">
-        <h1 className="text-5xl font-bold mb-4">Stop Guessing. Start Verifying.</h1>
-        <p className="text-xl text-gray-600 mb-8">Real-time Affordability Checks for Landlords. Leverage Open Banking to instantly verify an applicant's income and expenses, reducing your risk of missed rent payments.</p>
-        <Link to="/register" className="bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-indigo-700">
-          Create Your First Check
-        </Link>
+      <section className="container mx-auto px-6 py-20 flex items-center">
+        <div className="w-1/2">
+          <h1 className="text-5xl font-bold text-neutral-text mb-4">Know they can pay. Instantly.</h1>
+          <p className="text-xl text-neutral-text mb-8">Stop chasing payslips and bank statements. Our Open Banking affordability check gives you a clear, real-time answer in minutes. Fast, secure, and radically simple.</p>
+          <Link to="/register" className="bg-primary-blue text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-blue-700">
+            Create Your First Free Check
+          </Link>
+        </div>
+        <div className="w-1/2 flex justify-center">
+          <div className="relative">
+            <FaTabletAlt className="text-gray-200 text-9xl" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center">
+              <FaCheckCircle className="text-green-500 text-5xl mr-2" />
+              <span className="text-2xl font-bold text-neutral-text">8.2/10</span>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 px-6">
+      <section className="py-20 px-6 bg-gray-50">
         <div className="container mx-auto text-center">
           <h2 className="text-4xl font-bold mb-2">How It Works</h2>
           <p className="text-gray-600 mb-12">A simple, 3-step process to get the insights you need.</p>
