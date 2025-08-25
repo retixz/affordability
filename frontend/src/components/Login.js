@@ -15,7 +15,7 @@ const Login = () => {
     try {
       const { data } = await login({ email, password });
       localStorage.setItem('authToken', data.token);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       setError('Failed to login. Please check your credentials.');
     }

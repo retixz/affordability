@@ -7,6 +7,7 @@ import ReportView from './components/ReportView';
 import Login from './components/Login';
 import Register from './components/Register';
 import ProtectedRoute from './components/ProtectedRoute';
+import LandingPage from './pages/LandingPage';
 import './App.css';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
       <div className="App">
         <Routes>
           {/* Public routes */}
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/check/success" element={<SuccessPage />} />
@@ -22,7 +24,7 @@ function App() {
 
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/report/:applicantId" element={<ReportView />} />
           </Route>
         </Routes>
