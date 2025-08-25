@@ -83,3 +83,78 @@ This document provides details on the available API endpoints for the Affordabil
 -   **Error Responses:**
     -   `400 Bad Request`: If the `code` is missing.
     -   `500 Internal Server Error`: For failures during the token exchange or data fetching process.
+
+---
+
+### 5. Create Stripe Checkout Session
+
+-   **Method & Path:** `POST /create-checkout-session`
+-   **Purpose:** Creates a new Stripe Checkout session for a landlord to subscribe to a plan.
+-   **Authentication:** Required (Bearer Token).
+-   **Request Body:**
+    ```json
+    {
+      "priceId": "string"
+    }
+    ```
+-   **Success Response:**
+    -   **Code:** `200 OK`
+    -   **Body:**
+        ```json
+        {
+          "sessionId": "string"
+        }
+        ```
+-   **Error Responses:**
+    -   `404 Not Found`: If the landlord is not found.
+    -   `500 Internal Server Error`: For any other errors.
+
+---
+
+### 6. Stripe Webhook
+
+-   **Method & Path:** `POST /stripe-webhook`
+-   **Purpose:** Handles incoming webhooks from Stripe to update subscription statuses. This endpoint is public but secured by verifying the Stripe signature.
+-   **Request Body:**
+    -   The request body is a Stripe event object.
+-   **Success Response:**
+    -   **Code:** `200 OK`
+-   **Error Responses:**
+    -   `400 Bad Request`: If the Stripe signature is invalid.
+
+---
+
+### 7. Get Subscription Details
+
+-   **Method & Path:** `GET /subscription`
+-   **Purpose:** Retrieves the current subscription plan and status for the authenticated landlord.
+-   **Authentication:** Required (Bearer Token).
+-   **Success Response:**
+    -   **Code:** `200 OK`
+    -   **Body:**
+        ```json
+        {
+          "plan": "string",
+          "status": "string"
+        }
+        ```
+-   **Error Responses:**
+    -   `404 Not Found`: If the landlord is not found.
+
+---
+
+### 8. Create Stripe Billing Portal Session
+
+-   **Method & Path:** `POST /create-portal-session`
+-   **Purpose:** Creates a new Stripe Billing Portal session for a landlord to manage their subscription.
+-   **Authentication:** Required (Bearer Token).
+-   **Success Response:**
+    -   **Code:** `200 OK`
+    -   **Body:**
+        ```json
+        {
+          "url": "string"
+        }
+        ```
+-   **Error Responses:**
+    -   `404 Not Found`: If the landlord's Stripe customer ID is not found.

@@ -16,6 +16,9 @@ Stores information about our business clients (the landlords).
 | `password_hash`     | `VARCHAR(255)`            | The hashed password for the landlord's account.             |
 | `subscription_plan` | `VARCHAR(50)`             | The subscription plan the landlord is on (e.g., 'starter'). |
 | `created_at`        | `TIMESTAMP WITH TIME ZONE`| Timestamp of when the landlord account was created.         |
+| `stripe_customer_id`| `VARCHAR(255)`            | The landlord's Stripe Customer ID.                          |
+| `stripe_subscription_id`| `VARCHAR(255)`        | The landlord's Stripe Subscription ID.                      |
+| `subscription_status`| `VARCHAR(50)`            | The status of the landlord's subscription (e.g. 'active', 'canceled', 'past_due'). |
 
 ### `applicants`
 
@@ -45,7 +48,20 @@ Stores the results of the affordability checks.
 | `report_data`               | `JSONB`                   | The raw, categorized data from the bank data aggregator (e.g., Tink).    |
 | `created_at`                | `TIMESTAMP WITH TIME ZONE`| Timestamp of when the report was generated.                              |
 
+### `usage_records`
+
+This table is essential for tracking monthly usage of the affordability check service.
+
+| Column        | Type                 | Description                                                                 |
+|---------------|----------------------|-----------------------------------------------------------------------------|
+| `id`          | `SERIAL PRIMARY KEY` | Unique identifier for each usage record.                                    |
+| `landlord_id` | `INTEGER`            | A foreign key that links to the `landlords.id`.                             |
+| `check_count` | `INTEGER`            | The number of checks performed by the landlord in the given month/year.     |
+| `month`       | `INTEGER`            | The month of the usage record (1-12).                                       |
+| `year`        | `INTEGER`            | The year of the usage record.                                               |
+
 ## Relationships
 
 -   A `landlord` can have many `applicants`. (`landlords.id` -> `applicants.landlord_id`)
 -   An `applicant` has one `affordability_report`. (`applicants.id` -> `affordability_reports.applicant_id`)
+-   A `landlord` has many `usage_records`. (`landlords.id` -> `usage_records.landlord_id`)
