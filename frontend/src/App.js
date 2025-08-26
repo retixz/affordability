@@ -35,9 +35,9 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/report/:applicantId" element={<ReportView />} />
             <Route path="/billing" element={<Billing />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/payment-canceled" element={<PaymentCanceled />} />
           </Route>
-          <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
-          <Route path="/payment-canceled" element={<ProtectedRoute><PaymentCanceled /></ProtectedRoute>} />
         </Routes>
         </Elements>
       </div>
