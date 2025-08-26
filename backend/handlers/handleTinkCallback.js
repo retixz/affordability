@@ -1,18 +1,15 @@
 'use strict';
 
 const axios = require('axios');
-const db = require('../db');
+const db = require('../utils/db');
 const { processTinkData } = require('./processTinkData');
 
 const handleTinkCallback = async (req, res) => {
   const { code, state: secureLinkToken } = req.query;
 
-  let client;
   try {
-    client = await db.getClient();
-
     // Step 1: Retrieve the applicant's ID using the secure token.
-    const applicantResult = await client.query(
+    const applicantResult = await db.query(
       "SELECT id FROM applicants WHERE secure_link_token = $1 AND status = 'pending'",
       [secureLinkToken]
     );
@@ -50,7 +47,7 @@ const handleTinkCallback = async (req, res) => {
     console.log(`Successfully queued processing for applicant ID: ${applicantId}`);
 
     // Immediately update the applicant's status to 'in_progress'
-    await client.query("UPDATE applicants SET status = 'in_progress' WHERE id = $1", [applicantId]);
+    await db.query("UPDATE applicants SET status = 'in_progress' WHERE id = $1", [applicantId]);
 
     // Step 5: Redirect the user to a success page.
     const successUrl = `https://${process.env.PORTAL_HOST}/check/success`;
@@ -59,10 +56,6 @@ const handleTinkCallback = async (req, res) => {
   } catch (error) {
     console.error('Error in Tink callback handler:', error.response ? error.response.data : error.message);
     return res.status(500).json({ error: 'An error occurred during the Tink flow.' });
-  } finally {
-    if (client) {
-      await client.end();
-    }
   }
 };
 

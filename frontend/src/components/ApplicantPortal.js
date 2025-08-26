@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api';
 import './ApplicantPortal.css';
 
 const ApplicantPortal = () => {
@@ -12,8 +12,7 @@ const ApplicantPortal = () => {
   useEffect(() => {
     const validateToken = async () => {
       try {
-        // In a real app, the base URL would come from an environment variable
-        const response = await axios.get(`http://localhost:3000/checks/${token}`);
+        const response = await api.get(`/checks/${token}`);
         setData(response.data);
       } catch (err) {
         setError('This link is invalid or has expired.');

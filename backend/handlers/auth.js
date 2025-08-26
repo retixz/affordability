@@ -1,20 +1,17 @@
 'use strict';
 
-const db = require('../db');
+const db = require('../utils/db');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const jwt =require('jsonwebtoken');
 
 const register = async (req, res) => {
   const { email, password, companyName } = req.body;
 
-  let client;
   try {
-    client = await db.getClient();
-
     const userExistsQuery = 'SELECT * FROM landlords WHERE email = $1';
-    const existingUser = await client.query(userExistsQuery, [email]);
+    const { rows: existingUsers } = await db.query(userExistsQuery, [email]);
 
-    if (existingUser.rows.length > 0) {
+    if (existingUsers.length > 0) {
       return res.status(409).json({ error: 'User with this email already exists.' });
     }
 
@@ -27,34 +24,27 @@ const register = async (req, res) => {
       RETURNING id;
     `;
     const values = [email, companyName, passwordHash];
-    await client.query(insertQuery, values);
+    await db.query(insertQuery, values);
 
     return res.status(201).json({ message: 'User registered successfully.' });
   } catch (error) {
     console.error('Database error:', error);
     return res.status(500).json({ error: 'Internal Server Error' });
-  } finally {
-    if (client) {
-      await client.end();
-    }
   }
 };
 
 const login = async (req, res) => {
   const { email, password } = req.body;
 
-  let client;
   try {
-    client = await db.getClient();
-
     const query = 'SELECT * FROM landlords WHERE email = $1';
-    const result = await client.query(query, [email]);
+    const { rows } = await db.query(query, [email]);
 
-    if (result.rows.length === 0) {
+    if (rows.length === 0) {
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
 
-    const user = result.rows[0];
+    const user = rows[0];
     const isValid = await bcrypt.compare(password, user.password_hash);
 
     if (!isValid) {
@@ -67,10 +57,6 @@ const login = async (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     return res.status(500).json({ error: 'Internal Server Error' });
-  } finally {
-    if (client) {
-      await client.end();
-    }
   }
 };
 

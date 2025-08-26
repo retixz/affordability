@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import './NewCheckModal.css';
 
 const NewCheckModal = ({ onClose }) => {
@@ -16,7 +16,7 @@ const NewCheckModal = ({ onClose }) => {
     setError(null);
 
     try {
-      const response = await axios.post('http://localhost:3000/checks', {
+      const response = await api.post('/checks', {
         fullName,
         email,
       });

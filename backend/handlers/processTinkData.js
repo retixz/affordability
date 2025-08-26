@@ -1,6 +1,6 @@
 'use strict';
 
-const db = require('../db');
+const db = require('../utils/db');
 
 module.exports.processTinkData = async (event) => {
   const { applicantId, transactions, rawTinkData } = event;
@@ -47,9 +47,8 @@ module.exports.processTinkData = async (event) => {
   // Round to two decimal places
   affordability_score = parseFloat(affordability_score.toFixed(2));
 
-  let client;
+  const client = await db.pool.connect();
   try {
-    client = await db.getClient();
     await client.query('BEGIN');
 
     // Insert the report
@@ -82,17 +81,13 @@ module.exports.processTinkData = async (event) => {
     };
 
   } catch (error) {
-    if (client) {
-      await client.query('ROLLBACK');
-    }
+    await client.query('ROLLBACK');
     console.error('Database transaction failed:', error);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'Internal server error during database operation.' }),
     };
   } finally {
-    if (client) {
-      await client.end();
-    }
+    client.release();
   }
 };

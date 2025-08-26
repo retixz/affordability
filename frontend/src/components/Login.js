@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { login } from '../api';
+import api from '../services/api';
 import './Login.css';
 
 const Login = () => {
@@ -13,7 +13,7 @@ const Login = () => {
     e.preventDefault();
     setError('');
     try {
-      const { data } = await login({ email, password });
+      const { data } = await api.post('/login', { email, password });
       localStorage.setItem('authToken', data.token);
       navigate('/dashboard');
     } catch (err) {
