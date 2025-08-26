@@ -132,3 +132,23 @@
   background-color: #cccccc;
   cursor: not-allowed;
 }
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  align-items: center;
+}
+
+.search-bar,
+.status-filter {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.search-bar {
+  flex-grow: 1;
+  max-width: 400px;
+}
