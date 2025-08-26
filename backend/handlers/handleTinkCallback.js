@@ -50,7 +50,7 @@ const handleTinkCallback = async (req, res) => {
     await db.query("UPDATE applicants SET status = 'in_progress' WHERE id = $1", [applicantId]);
 
     // Step 5: Redirect the user to a success page.
-    const successUrl = `https://${process.env.PORTAL_HOST}/check/success`;
+    const successUrl = `${process.env.FRONTEND_URL}/check/success`;
     return res.redirect(successUrl);
 
   } catch (error) {
