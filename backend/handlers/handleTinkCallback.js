@@ -20,6 +20,9 @@ const handleTinkCallback = async (req, res) => {
     }
     const applicantId = applicantResult.rows[0].id;
 
+    // Immediately update the applicant's status to 'in_progress' before processing
+    await db.query("UPDATE applicants SET status = 'in_progress' WHERE id = $1", [applicantId]);
+
     // Step 2: Exchange the authorization code for a Tink access token.
     const tokenResponse = await axios.post('https://api.tink.com/api/v1/oauth/token', new URLSearchParams({
       code: code,
@@ -46,16 +49,13 @@ const handleTinkCallback = async (req, res) => {
     await processTinkData(payload);
     console.log(`Successfully queued processing for applicant ID: ${applicantId}`);
 
-    // Immediately update the applicant's status to 'in_progress'
-    await db.query("UPDATE applicants SET status = 'in_progress' WHERE id = $1", [applicantId]);
-
-    // Step 5: Respond to the frontend.
-    return res.status(200).json({ success: true, message: 'Tink flow completed successfully.' });
+    // Step 5: Redirect the user to a success page.
+    const successUrl = `${process.env.FRONTEND_URL}/check/success`;
+    return res.redirect(successUrl);
 
   } catch (error) {
     console.error('Error in Tink callback handler:', error.response ? error.response.data : error.message);
-    const successUrl = `${process.env.FRONTEND_URL}/check/error`;
-    return res.status(500).json({ success: false, error: 'An error occurred during the Tink flow.' });
+    return res.status(500).json({ error: 'An error occurred during the Tink flow.' });
   }
 };
 
