@@ -74,6 +74,47 @@ This project is configured for a simple, one-command startup process.
 
 ---
 
+## End-to-End Testing with Payments & Webhooks
+To test the complete user subscription flow, you need to simulate Stripe sending webhook events to your local server. This requires the Stripe CLI.
+
+### 1. First-Time Setup for Testing
+**Install Stripe CLI:** Follow the [official guide](https://stripe.com/docs/stripe-cli) to install the Stripe CLI for your operating system.
+
+**Login to Stripe:** Connect the CLI to your Stripe account by running:
+```bash
+stripe login
+```
+
+### 2. Running the Test Environment
+You will need two separate terminals running simultaneously.
+
+**Terminal 1: Start the Application**
+
+In the project's root directory, run the standard development command:
+```bash
+npm run dev
+```
+This will start the database, backend API, and frontend application.
+
+**Terminal 2: Start the Webhook Forwarding**
+
+In the project's root directory, run the new webhook command:
+```bash
+npm run start:webhooks
+```
+When this command runs for the first time, Stripe will provide a webhook signing secret (it looks like `whsec_...`). You must copy this secret.
+
+Add the secret to your `backend/.env` file:
+```
+# backend/.env
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+**Important:** You must restart your main application (Terminal 1) after adding the secret for it to be loaded.
+
+You are now ready to perform a full end-to-end test. When you complete a test payment in the frontend, you will see the event logs appear in Terminal 2.
+
+---
+
 ## Project Documentation
 
 This project includes detailed documentation to assist developers and stakeholders. All documentation is located in the `/docs` directory.
