@@ -31,7 +31,7 @@ const { authorize } = require('./middleware/auth');
 const { getApplicants } = require('./handlers/getApplicants');
 const { getReport } = require('./handlers/getReport');
 const { handleTinkCallback } = require('./handlers/handleTinkCallback');
-const { createCheckoutSession, stripeWebhook, getSubscription, createPortalSession } = require('./handlers/stripe');
+const { createCheckoutSession, stripeWebhook, getSubscription, createPortalSession, getAccountStatus } = require('./handlers/stripe');
 const { validateCheck } = require('./handlers/validateCheck');
 
 
@@ -48,5 +48,6 @@ app.get('/callback/tink', validate(require('./middleware/validation').handleTink
 app.post('/create-checkout-session', authorize, validate(require('./middleware/validation').createCheckoutSessionSchema), createCheckoutSession);
 app.get('/subscription', authorize, getSubscription);
 app.post('/create-portal-session', authorize, createPortalSession);
+app.get('/account/status', authorize, getAccountStatus);
 
 module.exports.handler = serverless(app);

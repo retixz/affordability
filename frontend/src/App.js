@@ -11,6 +11,8 @@ import Register from './components/Register';
 import ProtectedRoute from './components/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
 import Billing from './pages/Billing';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentCanceled from './pages/PaymentCanceled';
 import './App.css';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
@@ -34,6 +36,8 @@ function App() {
             <Route path="/report/:applicantId" element={<ReportView />} />
             <Route path="/billing" element={<Billing />} />
           </Route>
+          <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
+          <Route path="/payment-canceled" element={<ProtectedRoute><PaymentCanceled /></ProtectedRoute>} />
         </Routes>
         </Elements>
       </div>

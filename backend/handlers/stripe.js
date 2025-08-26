@@ -27,8 +27,8 @@ const createCheckoutSession = async (req, res) => {
             }],
             mode: 'subscription',
             customer: stripe_customer_id,
-            success_url: `${process.env.PORTAL_HOST}/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${process.env.PORTAL_HOST}/pricing`,
+            success_url: `${process.env.PORTAL_HOST}/payment-success`,
+            cancel_url: `${process.env.PORTAL_HOST}/payment-canceled`,
         });
 
         return res.status(200).json({ sessionId: session.id });
@@ -146,9 +146,25 @@ const createPortalSession = async (req, res) => {
     }
 };
 
+const getAccountStatus = async (req, res) => {
+    const { landlordId } = req;
+    try {
+        const landlordRes = await db.query('SELECT subscription_status FROM landlords WHERE id = $1', [landlordId]);
+        if (landlordRes.rows.length === 0) {
+            return res.status(404).json({ error: 'Landlord not found.' });
+        }
+        const { subscription_status } = landlordRes.rows[0];
+        return res.status(200).json({ status: subscription_status });
+    } catch (error) {
+        console.error('Error fetching account status:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     createCheckoutSession,
     stripeWebhook,
     getSubscription,
     createPortalSession,
+    getAccountStatus,
 };
