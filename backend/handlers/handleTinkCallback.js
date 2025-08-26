@@ -42,7 +42,7 @@ const handleTinkCallback = async (req, res) => {
     // Step 4: Asynchronously invoke our data processing Lambda function.
     const payload = {
       applicantId: applicantId,
-      transactions: transactions.map(t => ({ description: t.description, amount: t.amount.value })),
+      transactions: transactions,
       rawTinkData: transactions,
     };
 
