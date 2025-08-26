@@ -133,7 +133,8 @@ module.exports.processTinkData = async (event) => {
 
     // Only include transactions from the last 3 months and from stable categories
     if (threeMonths.includes(transactionMonth) && stableCategoryCodes.has(categoryId)) {
-      const amount = transaction.amount?.value;
+      const { scale, unscaledValue } = transaction.amount?.value || {};
+      const amount = parseFloat(unscaledValue) / Math.pow(10, parseInt(scale));
 
       if (typeof amount !== 'number') continue;
 

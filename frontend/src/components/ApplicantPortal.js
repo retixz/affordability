@@ -53,7 +53,7 @@ const ApplicantPortal = () => {
           const tinkLink = 'https://link.tink.com/1.0/authorize/' +
             '?client_id=' + process.env.REACT_APP_TINK_CLIENT_ID +
             '&redirect_uri=' + encodeURIComponent(redirect_uri) +
-            '&scope=accounts:read,transactions:read' +
+            '&scope=accounts:read,transactions:read,categories:read' +
             '&market=GB' +
             '&state=' + token;
           window.location.href = tinkLink;
