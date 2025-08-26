@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useStripe } from '@stripe/react-stripe-js';
 import api from '../services/api';
 import './Register.css';
 
@@ -10,19 +11,44 @@ const Register = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [selectedPlanId, setSelectedPlanId] = useState(null);
+  const stripe = useStripe();
+
+
+  useEffect(() => {
+    const planId = searchParams.get('plan');
+    if (planId) {
+        setSelectedPlanId(planId);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
     try {
-      await api.post('/register', { email, password, companyName });
-      setSuccess('Registration successful! Redirecting to login...');
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      const registerResponse = await api.post('/register', { email, password, companyName });
+      const { token } = registerResponse.data;
+      localStorage.setItem('authToken', token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      if (selectedPlanId) {
+        const checkoutResponse = await api.post('/create-checkout-session', { priceId: selectedPlanId });
+        const { sessionId } = checkoutResponse.data;
+        const { error } = await stripe.redirectToCheckout({ sessionId });
+        if (error) {
+            setError('Failed to redirect to Stripe. Please contact support.');
+            console.error('Stripe checkout error:', error);
+        }
+      } else {
+        navigate('/dashboard');
+      }
+
     } catch (err) {
       setError('Failed to register. Please try again.');
+      localStorage.removeItem('authToken');
+      delete api.defaults.headers.common['Authorization'];
     }
   };
 

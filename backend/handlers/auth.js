@@ -24,9 +24,12 @@ const register = async (req, res) => {
       RETURNING id;
     `;
     const values = [email, companyName, passwordHash];
-    await db.query(insertQuery, values);
+    const { rows } = await db.query(insertQuery, values);
+    const newUser = rows[0];
 
-    return res.status(201).json({ message: 'User registered successfully.' });
+    const token = jwt.sign({ landlordId: newUser.id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION_TIME || '8h' });
+
+    return res.status(201).json({ token });
   } catch (error) {
     console.error('Database error:', error);
     return res.status(500).json({ error: 'Internal Server Error' });

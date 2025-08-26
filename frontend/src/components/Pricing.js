@@ -10,7 +10,7 @@ const Pricing = () => {
 
     const handleChoosePlan = async (priceId) => {
         if (!token) {
-            navigate('/register');
+            navigate(`/register?plan=${priceId}`);
             return;
         }
 
