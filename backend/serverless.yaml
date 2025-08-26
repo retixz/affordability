@@ -12,6 +12,8 @@ provider:
   name: aws
   runtime: nodejs20.x
   region: eu-central-1
+  httpApi:
+    cors: true # Enable CORS for all HTTP API endpoints
   # iam:
   #   role:
   #     statements:
@@ -29,71 +31,14 @@ provider:
     STRIPE_WEBHOOK_SECRET: ${env:STRIPE_WEBHOOK_SECRET, 'local-secret'}
 
 functions:
-  createCheckoutSession:
-    handler: handlers/stripe.createCheckoutSession
+  # This single function handles all API requests via the Express app.
+  api:
+    handler: app.handler
     events:
       - httpApi:
-          path: /create-checkout-session
-          method: post
-  stripeWebhook:
-    handler: handlers/stripe.stripeWebhook
-    events:
-      - httpApi:
-          path: /stripe-webhook
-          method: post
-  getSubscription:
-    handler: handlers/stripe.getSubscription
-    events:
-      - httpApi:
-          path: /subscription
-          method: get
-  createPortalSession:
-    handler: handlers/stripe.createPortalSession
-    events:
-      - httpApi:
-          path: /create-portal-session
-          method: post
-  getReport:
-    handler: handlers/getReport.getReport
-    events:
-      - httpApi:
-          path: /reports/{applicantId}
-          method: get
-  handleTinkCallback:
-    handler: handlers/handleTinkCallback.handleTinkCallback
-    events:
-      - httpApi:
-          path: /callback/tink
-          method: get
-  create_check:
-    handler: handlers/createCheck.createCheck
-    events:
-      - httpApi:
-          path: /checks
-          method: post
-  validate_check:
-    handler: handlers/validateCheck.validateCheck
-    events:
-      - httpApi:
-          path: /checks/{token}
-          method: get
+          path: /{proxy+}
+          method: '*'
+
+  # This function is not triggered by HTTP and is used for background processing.
   processTinkData:
     handler: handlers/processTinkData.processTinkData
-  register:
-    handler: handlers/auth.register
-    events:
-      - httpApi:
-          path: /register
-          method: post
-  login:
-    handler: handlers/auth.login
-    events:
-      - httpApi:
-          path: /login
-          method: post
-  getApplicants:
-    handler: handlers/getApplicants.getApplicants
-    events:
-      - httpApi:
-          path: /applicants
-          method: get

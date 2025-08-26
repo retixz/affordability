@@ -1,10 +1,9 @@
 'use strict';
 
 const db = require('../db');
-const { authorize } = require('../middleware/auth');
 
-const getApplicantsHandler = async (event) => {
-  const { landlordId } = event;
+const getApplicants = async (req, res) => {
+  const { landlordId } = req;
 
   let client;
   try {
@@ -17,16 +16,10 @@ const getApplicantsHandler = async (event) => {
     const values = [landlordId];
     const result = await client.query(query, values);
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(result.rows),
-    };
+    return res.status(200).json(result.rows);
   } catch (error) {
     console.error('Database error:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Internal Server Error' }),
-    };
+    return res.status(500).json({ error: 'Internal Server Error' });
   } finally {
     if (client) {
       await client.end();
@@ -34,4 +27,6 @@ const getApplicantsHandler = async (event) => {
   }
 };
 
-module.exports.getApplicants = authorize(getApplicantsHandler);
+module.exports = {
+    getApplicants,
+};

@@ -7,16 +7,10 @@ const USAGE_LIMITS = {
     business: 100,
 };
 const db = require('../db');
-const { authorize } = require('../middleware/auth');
 
-const validateEmail = (email) => {
-  const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(String(email).toLowerCase());
-};
-
-const createCheckHandler = async (event) => {
-  const { fullName, email } = JSON.parse(event.body);
-  const { landlordId } = event;
+const createCheck = async (req, res) => {
+  const { fullName, email } = req.body;
+  const { landlordId } = req;
 
   let client;
   try {
@@ -28,13 +22,13 @@ const createCheckHandler = async (event) => {
     // Usage Metering Logic
     const landlordRes = await client.query('SELECT subscription_plan, subscription_status FROM landlords WHERE id = $1', [landlordId]);
     if (landlordRes.rows.length === 0) {
-      return { statusCode: 404, body: JSON.stringify({ error: 'Landlord not found.' }) };
+      return res.status(404).json({ error: 'Landlord not found.' });
     }
 
     const { subscription_plan, subscription_status } = landlordRes.rows[0];
 
     if (subscription_status !== 'active') {
-      return { statusCode: 403, body: JSON.stringify({ error: 'Subscription not active.' }) };
+      return res.status(403).json({ error: 'Subscription not active.' });
     }
 
     const plan = subscription_plan || 'starter';
@@ -48,23 +42,9 @@ const createCheckHandler = async (event) => {
     }
 
     if (check_count >= limit) {
-      return { statusCode: 403, body: JSON.stringify({ error: 'Usage limit reached.' }) };
+      return res.status(403).json({ error: 'Usage limit reached.' });
     }
     // End of Usage Metering Logic
-
-    if (!fullName || typeof fullName !== 'string' || fullName.trim() === '') {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Full name is required.' }),
-      };
-    }
-
-    if (!email || typeof email !== 'string' || !validateEmail(email)) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Email is required and must be valid.' }),
-      };
-    }
 
     const token = crypto.randomBytes(32).toString('hex');
 
@@ -87,16 +67,10 @@ const createCheckHandler = async (event) => {
 
     const secureLink = `https://${process.env.PORTAL_HOST}/check/${token}`;
 
-    return {
-      statusCode: 201,
-      body: JSON.stringify({ secureLink }),
-    };
+    return res.status(201).json({ secureLink });
   } catch (error) {
     console.error('Database error:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Internal Server Error' }),
-    };
+    return res.status(500).json({ error: 'Internal Server Error' });
   } finally {
     if (client) {
       await client.end();
@@ -104,4 +78,6 @@ const createCheckHandler = async (event) => {
   }
 };
 
-module.exports.createCheck = authorize(createCheckHandler);
+module.exports = {
+    createCheck,
+};

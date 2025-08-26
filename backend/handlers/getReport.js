@@ -1,18 +1,10 @@
 'use strict';
 
 const db = require('../db');
-const { authorize } = require('../middleware/auth');
 
-const getReportHandler = async (event) => {
-  const { applicantId } = event.pathParameters;
-  const { landlordId } = event;
-
-  if (!applicantId) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: 'Applicant ID is required.' }),
-    };
-  }
+const getReport = async (req, res) => {
+  const { applicantId } = req.params;
+  const { landlordId } = req;
 
   let client;
   try {
@@ -31,22 +23,13 @@ const getReportHandler = async (event) => {
     const result = await client.query(query, values);
 
     if (result.rows.length === 0) {
-      return {
-        statusCode: 404,
-        body: JSON.stringify({ error: 'Report not found or you do not have permission to view it.' }),
-      };
+      return res.status(404).json({ error: 'Report not found or you do not have permission to view it.' });
     }
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(result.rows[0]),
-    };
+    return res.status(200).json(result.rows[0]);
   } catch (error) {
     console.error('Database error:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Internal Server Error' }),
-    };
+    return res.status(500).json({ error: 'Internal Server Error' });
   } finally {
     if (client) {
       await client.end();
@@ -54,4 +37,6 @@ const getReportHandler = async (event) => {
   }
 };
 
-module.exports.getReport = authorize(getReportHandler);
+module.exports = {
+    getReport,
+};

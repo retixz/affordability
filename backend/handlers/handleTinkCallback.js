@@ -1,23 +1,13 @@
 'use strict';
 
-const AWS = require('aws-sdk');
 const axios = require('axios');
 const db = require('../db');
 const { processTinkData } = require('./processTinkData');
 
-module.exports.handleTinkCallback = async (event) => {
-  const { code, state: secureLinkToken } = event.queryStringParameters;
-
-  if (!code) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: 'Tink callback error: No code provided.' }),
-    };
-  }
+const handleTinkCallback = async (req, res) => {
+  const { code, state: secureLinkToken } = req.query;
 
   let client;
-  const lambda = new AWS.Lambda();
-
   try {
     client = await db.getClient();
 
@@ -29,10 +19,7 @@ module.exports.handleTinkCallback = async (event) => {
 
     if (applicantResult.rows.length === 0) {
       // This prevents re-processing and handles invalid tokens.
-      return {
-        statusCode: 404,
-        body: JSON.stringify({ error: 'Applicant not found or check already processed.' }),
-      };
+      return res.status(404).json({ error: 'Applicant not found or check already processed.' });
     }
     const applicantId = applicantResult.rows[0].id;
 
@@ -59,9 +46,6 @@ module.exports.handleTinkCallback = async (event) => {
       rawTinkData: transactions,
     };
 
-    // In the original code, this was invoking a lambda.
-    // For simplicity in this refactoring, we'll call the function directly.
-    // In a production system, async invocation would be preferred.
     await processTinkData(payload);
     console.log(`Successfully queued processing for applicant ID: ${applicantId}`);
 
@@ -70,20 +54,18 @@ module.exports.handleTinkCallback = async (event) => {
 
     // Step 5: Redirect the user to a success page.
     const successUrl = `https://${process.env.PORTAL_HOST}/check/success`;
-    return {
-      statusCode: 302,
-      headers: { Location: successUrl },
-    };
+    return res.redirect(successUrl);
 
   } catch (error) {
     console.error('Error in Tink callback handler:', error.response ? error.response.data : error.message);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'An error occurred during the Tink flow.' }),
-    };
+    return res.status(500).json({ error: 'An error occurred during the Tink flow.' });
   } finally {
     if (client) {
       await client.end();
     }
   }
+};
+
+module.exports = {
+    handleTinkCallback,
 };
