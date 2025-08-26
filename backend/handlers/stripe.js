@@ -29,6 +29,7 @@ const createCheckoutSession = async (req, res) => {
             customer: stripe_customer_id,
             success_url: `${process.env.FRONTEND_URL}/payment-success`,
             cancel_url: `${process.env.FRONTEND_URL}/payment-canceled`,
+            client_reference_id: landlordId, // Pass internal landlordId to Stripe
         });
 
         return res.status(200).json({ sessionId: session.id });
@@ -38,53 +39,55 @@ const createCheckoutSession = async (req, res) => {
     }
 };
 
-const PRICE_ID_TO_PLAN = {
-    'price_1S01GcDle4cCh3dRWBh0E0Mi': 'starter',
-    'price_1S01H7Dle4cCh3dRr9Lm4crU': 'pro',
-    'price_1S01HQDle4cCh3dRvyf26eGq': 'business',
-};
-
 const stripeWebhook = async (req, res) => {
-    let stripeEvent;
+    const sig = req.headers['stripe-signature'];
+    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    let event;
 
-    if (process.env.IS_OFFLINE) {
-        stripeEvent = req.body;
-    } else {
-        const sig = req.headers['stripe-signature'];
-        const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-        try {
-            stripeEvent = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-        } catch (err) {
-            console.log(`⚠️  Webhook signature verification failed.`, err.message);
-            return res.status(400).send(`Webhook Error: ${err.message}`);
-        }
+    try {
+        // Securely construct the event from the raw request body and signature
+        event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    } catch (err) {
+        console.error(`Webhook signature verification failed.`, err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
     try {
-        switch (stripeEvent.type) {
+        switch (event.type) {
             case 'checkout.session.completed': {
-                const session = await stripe.checkout.sessions.retrieve(stripeEvent.data.object.id, {
-                    expand: ['line_items'],
+                // Retrieve the full session object with expanded product metadata
+                const sessionWithProduct = await stripe.checkout.sessions.retrieve(event.data.object.id, {
+                    expand: ['line_items.data.price.product'],
                 });
-                const { customer, subscription } = session;
-                const priceId = session.line_items.data[0].price.id;
-                const plan = PRICE_ID_TO_PLAN[priceId];
 
-                if (plan) {
-                    await db.query(
-                        'UPDATE landlords SET stripe_subscription_id = $1, subscription_status = $2, subscription_plan = $3 WHERE stripe_customer_id = $4',
-                        [subscription, 'active', plan, customer]
-                    );
-                } else {
-                     await db.query(
-                        'UPDATE landlords SET stripe_subscription_id = $1, subscription_status = $2 WHERE stripe_customer_id = $3',
-                        [subscription, 'active', customer]
-                    );
+                // Extract data from the verified event
+                const landlordId = event.data.object.client_reference_id;
+                const planName = sessionWithProduct.line_items.data[0].price.product.metadata.planName;
+                const customerId = event.data.object.customer;
+                const subscriptionId = event.data.object.subscription;
+
+                if (!landlordId || !planName) {
+                    console.error('Webhook Error: Missing landlordId or planName in session.');
+                    return res.status(400).send('Webhook Error: Missing metadata.');
                 }
+
+                // Idempotent database update
+                const query = `
+                    UPDATE landlords
+                    SET
+                        subscription_status = 'active',
+                        subscription_plan = $1,
+                        stripe_customer_id = $2,
+                        stripe_subscription_id = $3
+                    WHERE
+                        id = $4 AND
+                        stripe_customer_id IS NULL;
+                `;
+                await db.query(query, [planName, customerId, subscriptionId, landlordId]);
                 break;
             }
             case 'customer.subscription.updated': {
-                const subscription = stripeEvent.data.object;
+                const subscription = event.data.object;
                 const { customer, status } = subscription;
                 await db.query(
                     'UPDATE landlords SET subscription_status = $1 WHERE stripe_customer_id = $2',
@@ -93,7 +96,7 @@ const stripeWebhook = async (req, res) => {
                 break;
             }
             case 'customer.subscription.deleted': {
-                const subscription = stripeEvent.data.object;
+                const subscription = event.data.object;
                 const { customer } = subscription;
                 await db.query(
                     'UPDATE landlords SET subscription_status = $1 WHERE stripe_customer_id = $2',
@@ -102,7 +105,7 @@ const stripeWebhook = async (req, res) => {
                 break;
             }
             default:
-                console.log(`Unhandled event type ${stripeEvent.type}`);
+                console.log(`Unhandled event type ${event.type}`);
         }
     } catch (error) {
         console.error('Error in webhook handler:', error);
