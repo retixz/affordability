@@ -62,15 +62,15 @@ const stripeWebhook = async (req, res) => {
 
                 // Extract data from the verified event
                 const landlordId = event.data.object.client_reference_id;
-                const planName = sessionWithProduct.line_items.data[0].price.product.metadata.planName;
+                const { planName, usageLimit } = sessionWithProduct.line_items.data[0].price.product.metadata;
                 const customerId = event.data.object.customer;
                 const subscriptionId = event.data.object.subscription;
 
-                if (!landlordId || !planName) {
-                    console.error('Webhook Error: Missing landlordId or planName in session.');
+                if (!landlordId || !planName || !usageLimit) {
+                    console.error('Webhook Error: Missing landlordId, planName, or usageLimit in session metadata.');
                     return res.status(400).send('Webhook Error: Missing metadata.');
                 }
-
+                
                 // Idempotent database update
                 const query = `
                     UPDATE landlords
@@ -78,12 +78,13 @@ const stripeWebhook = async (req, res) => {
                         subscription_status = 'active',
                         subscription_plan = $1,
                         stripe_customer_id = $2,
-                        stripe_subscription_id = $3
+                        stripe_subscription_id = $3,
+                        usage_limit = $4
                     WHERE
-                        id = $4 AND
+                        id = $5 AND
                         stripe_customer_id IS NULL;
                 `;
-                await db.query(query, [planName, customerId, subscriptionId, landlordId]);
+                await db.query(query, [planName, customerId, subscriptionId, parseInt(usageLimit), landlordId]);
                 break;
             }
             case 'customer.subscription.updated': {

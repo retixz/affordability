@@ -5,6 +5,7 @@ CREATE TABLE landlords (
     company_name VARCHAR(255),
     password_hash VARCHAR(255) NOT NULL,
     subscription_plan VARCHAR(50) DEFAULT 'starter',
+    usage_limit INTEGER DEFAULT 5, -- Default to starter plan's limit
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     stripe_customer_id VARCHAR(255),
     stripe_subscription_id VARCHAR(255),

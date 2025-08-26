@@ -1,11 +1,6 @@
 'use strict';
 
 const crypto = require('crypto');
-const USAGE_LIMITS = {
-    starter: 5,
-    pro: 20,
-    business: 100,
-};
 const db = require('../utils/db');
 
 const createCheck = async (req, res) => {
@@ -18,19 +13,18 @@ const createCheck = async (req, res) => {
     const year = now.getFullYear();
 
     // Usage Metering Logic
-    const landlordRes = await db.query('SELECT subscription_plan, subscription_status FROM landlords WHERE id = $1', [landlordId]);
+    const landlordRes = await db.query('SELECT subscription_status, usage_limit FROM landlords WHERE id = $1', [landlordId]);
     if (landlordRes.rows.length === 0) {
       return res.status(404).json({ error: 'Landlord not found.' });
     }
 
-    const { subscription_plan, subscription_status } = landlordRes.rows[0];
+    const { subscription_status, usage_limit } = landlordRes.rows[0];
 
     if (subscription_status !== 'active') {
       return res.status(403).json({ error: 'Subscription not active.' });
     }
 
-    const plan = subscription_plan || 'starter';
-    const limit = USAGE_LIMITS[plan];
+    const limit = usage_limit;
 
     const usageRes = await db.query('SELECT check_count FROM usage_records WHERE landlord_id = $1 AND month = $2 AND year = $3', [landlordId, month, year]);
 
