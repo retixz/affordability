@@ -82,7 +82,7 @@ const stripeWebhook = async (req, res) => {
                         usage_limit = $4
                     WHERE
                         id = $5 AND
-                        stripe_customer_id IS NULL;
+                        (subscription_status IS NULL OR subscription_status != 'active');
                 `;
                 await db.query(query, [planName, customerId, subscriptionId, parseInt(usageLimit), landlordId]);
                 break;
