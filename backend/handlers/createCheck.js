@@ -63,7 +63,7 @@ const createCheck = async (req, res) => {
     `;
     await db.query(upsertUsageQuery, [landlordId, month, year]);
 
-    const secureLink = `https://${process.env.PORTAL_HOST}/check/${token}`;
+    const secureLink = `${process.env.FRONTEND_URL}/check/${token}`;
 
     return res.status(201).json({ secureLink });
   } catch (error) {

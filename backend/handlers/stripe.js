@@ -27,8 +27,8 @@ const createCheckoutSession = async (req, res) => {
             }],
             mode: 'subscription',
             customer: stripe_customer_id,
-            success_url: `${process.env.PORTAL_HOST}/payment-success`,
-            cancel_url: `${process.env.PORTAL_HOST}/payment-canceled`,
+            success_url: `${process.env.FRONTEND_URL}/payment-success`,
+            cancel_url: `${process.env.FRONTEND_URL}/payment-canceled`,
         });
 
         return res.status(200).json({ sessionId: session.id });
@@ -137,7 +137,7 @@ const createPortalSession = async (req, res) => {
         const { stripe_customer_id } = landlordRes.rows[0];
         const portalSession = await stripe.billingPortal.sessions.create({
             customer: stripe_customer_id,
-            return_url: `${process.env.PORTAL_HOST}/dashboard`,
+            return_url: `${process.env.FRONTEND_URL}/dashboard`,
         });
         return res.status(200).json({ url: portalSession.url });
     } catch (error) {

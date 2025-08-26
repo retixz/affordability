@@ -33,7 +33,7 @@ This project is configured for a simple, one-command startup process.
         ```bash
         cp backend/.env.example backend/.env
         ```
-        Then, fill in the required values in `backend/.env`, such as your `TINK_CLIENT_ID`, `TINK_CLIENT_SECRET`, `STRIPE_SECRET_KEY`, and `STRIPE_WEBHOOK_SECRET`.
+        Then, fill in the required values in `backend/.env`. The `FRONTEND_URL` should be set to `http://localhost:3000` for local development. You will also need to provide your `TINK_CLIENT_ID`, `TINK_CLIENT_SECRET`, `STRIPE_SECRET_KEY`, and `STRIPE_WEBHOOK_SECRET`.
 
     *   **Frontend:** Copy `frontend/.env.example` to `frontend/.env`.
         ```bash
