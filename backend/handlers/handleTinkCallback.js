@@ -49,9 +49,8 @@ const handleTinkCallback = async (req, res) => {
     await processTinkData(payload);
     console.log(`Successfully queued processing for applicant ID: ${applicantId}`);
 
-    // Step 5: Redirect the user to a success page.
-    const successUrl = `${process.env.FRONTEND_URL}/check/success`;
-    return res.redirect(successUrl);
+    // Step 5: Send a success response to the frontend.
+    return res.status(200).json({ message: 'Tink callback processed successfully.' });
 
   } catch (error) {
     console.error('Error in Tink callback handler:', error.response ? error.response.data : error.message);
