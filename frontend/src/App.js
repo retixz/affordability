@@ -4,6 +4,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import Dashboard from './components/Dashboard';
 import ApplicantPortal from './components/ApplicantPortal';
+import TinkCallback from './components/TinkCallback';
 import SuccessPage from './components/SuccessPage';
 import ReportView from './components/ReportView';
 import Login from './components/Login';
@@ -27,6 +28,7 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+            <Route path="/callback/tink" element={<TinkCallback />} />
           <Route path="/check/success" element={<SuccessPage />} />
           <Route path="/check/:token" element={<ApplicantPortal />} />
 
