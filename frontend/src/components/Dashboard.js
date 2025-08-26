@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import NewCheckModal from './NewCheckModal';
-import { getApplicants } from '../api';
+import api from '../services/api';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -12,7 +12,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchApplicants = async () => {
       try {
-        const { data } = await getApplicants();
+        const { data } = await api.get('/applicants');
         setApplicants(data);
       } catch (error) {
         console.error('Failed to fetch applicants:', error);

@@ -1,6 +1,6 @@
 'use strict';
 
-const { Client } = require('pg');
+const { Pool } = require('pg');
 require('dotenv').config();
 
 const dbConfig = {
@@ -11,8 +11,9 @@ const dbConfig = {
   port: process.env.DB_PORT,
 };
 
-module.exports.getClient = async () => {
-  const client = new Client(dbConfig);
-  await client.connect();
-  return client;
+const pool = new Pool(dbConfig);
+
+module.exports = {
+  query: (text, params) => pool.query(text, params),
+  pool,
 };

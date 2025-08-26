@@ -1,13 +1,12 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const { getClient } = require('../db');
+const db = require('../utils/db');
 
 const createCheckoutSession = async (req, res) => {
     const { priceId } = req.body;
     const { landlordId } = req;
 
-    const client = await getClient();
     try {
-        const landlordRes = await client.query('SELECT email, stripe_customer_id FROM landlords WHERE id = $1', [landlordId]);
+        const landlordRes = await db.query('SELECT email, stripe_customer_id FROM landlords WHERE id = $1', [landlordId]);
         if (landlordRes.rows.length === 0) {
             return res.status(404).json({ error: 'Landlord not found.' });
         }
@@ -17,7 +16,7 @@ const createCheckoutSession = async (req, res) => {
         if (!stripe_customer_id) {
             const customer = await stripe.customers.create({ email });
             stripe_customer_id = customer.id;
-            await client.query('UPDATE landlords SET stripe_customer_id = $1 WHERE id = $2', [stripe_customer_id, landlordId]);
+            await db.query('UPDATE landlords SET stripe_customer_id = $1 WHERE id = $2', [stripe_customer_id, landlordId]);
         }
 
         const session = await stripe.checkout.sessions.create({
@@ -36,10 +35,6 @@ const createCheckoutSession = async (req, res) => {
     } catch (error) {
         console.error('Error creating checkout session:', error);
         return res.status(500).json({ error: 'Internal Server Error' });
-    } finally {
-        if (client) {
-            await client.end();
-        }
     }
 };
 
@@ -65,7 +60,6 @@ const stripeWebhook = async (req, res) => {
         }
     }
 
-    const client = await getClient();
     try {
         switch (stripeEvent.type) {
             case 'checkout.session.completed': {
@@ -77,12 +71,12 @@ const stripeWebhook = async (req, res) => {
                 const plan = PRICE_ID_TO_PLAN[priceId];
 
                 if (plan) {
-                    await client.query(
+                    await db.query(
                         'UPDATE landlords SET stripe_subscription_id = $1, subscription_status = $2, subscription_plan = $3 WHERE stripe_customer_id = $4',
                         [subscription, 'active', plan, customer]
                     );
                 } else {
-                     await client.query(
+                     await db.query(
                         'UPDATE landlords SET stripe_subscription_id = $1, subscription_status = $2 WHERE stripe_customer_id = $3',
                         [subscription, 'active', customer]
                     );
@@ -92,7 +86,7 @@ const stripeWebhook = async (req, res) => {
             case 'customer.subscription.updated': {
                 const subscription = stripeEvent.data.object;
                 const { customer, status } = subscription;
-                await client.query(
+                await db.query(
                     'UPDATE landlords SET subscription_status = $1 WHERE stripe_customer_id = $2',
                     [status, customer]
                 );
@@ -101,7 +95,7 @@ const stripeWebhook = async (req, res) => {
             case 'customer.subscription.deleted': {
                 const subscription = stripeEvent.data.object;
                 const { customer } = subscription;
-                await client.query(
+                await db.query(
                     'UPDATE landlords SET subscription_status = $1 WHERE stripe_customer_id = $2',
                     ['canceled', customer]
                 );
@@ -113,10 +107,6 @@ const stripeWebhook = async (req, res) => {
     } catch (error) {
         console.error('Error in webhook handler:', error);
         return res.status(500).json({ error: 'Internal Server Error' });
-    } finally {
-        if (client) {
-            await client.end();
-        }
     }
 
     return res.status(200).json({ received: true });
@@ -124,9 +114,8 @@ const stripeWebhook = async (req, res) => {
 
 const getSubscription = async (req, res) => {
     const { landlordId } = req;
-    const client = await getClient();
     try {
-        const landlordRes = await client.query('SELECT subscription_plan, subscription_status FROM landlords WHERE id = $1', [landlordId]);
+        const landlordRes = await db.query('SELECT subscription_plan, subscription_status FROM landlords WHERE id = $1', [landlordId]);
         if (landlordRes.rows.length === 0) {
             return res.status(404).json({ error: 'Landlord not found.' });
         }
@@ -135,18 +124,13 @@ const getSubscription = async (req, res) => {
     } catch (error) {
         console.error('Error fetching subscription:', error);
         return res.status(500).json({ error: 'Internal Server Error' });
-    } finally {
-        if (client) {
-            await client.end();
-        }
     }
 };
 
 const createPortalSession = async (req, res) => {
     const { landlordId } = req;
-    const client = await getClient();
     try {
-        const landlordRes = await client.query('SELECT stripe_customer_id FROM landlords WHERE id = $1', [landlordId]);
+        const landlordRes = await db.query('SELECT stripe_customer_id FROM landlords WHERE id = $1', [landlordId]);
         if (landlordRes.rows.length === 0 || !landlordRes.rows[0].stripe_customer_id) {
             return res.status(404).json({ error: 'Stripe customer not found.' });
         }
@@ -159,10 +143,6 @@ const createPortalSession = async (req, res) => {
     } catch (error) {
         console.error('Error creating portal session:', error);
         return res.status(500).json({ error: 'Internal Server Error' });
-    } finally {
-        if (client) {
-            await client.end();
-        }
     }
 };
 

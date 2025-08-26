@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { register } from '../api';
+import api from '../services/api';
 import './Register.css';
 
 const Register = () => {
@@ -16,7 +16,7 @@ const Register = () => {
     setError('');
     setSuccess('');
     try {
-      await register({ email, password, companyName });
+      await api.post('/register', { email, password, companyName });
       setSuccess('Registration successful! Redirecting to login...');
       setTimeout(() => {
         navigate('/login');

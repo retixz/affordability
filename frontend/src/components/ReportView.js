@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api';
 import { FaCheckCircle, FaTimesCircle, FaInfoCircle } from 'react-icons/fa';
 import './ReportView.css';
 
@@ -14,8 +14,7 @@ const ReportView = () => {
     const fetchReport = async () => {
       try {
         setIsLoading(true);
-        // In a real app, the base URL would come from an environment variable
-        const response = await axios.get(`http://localhost:3000/reports/${applicantId}`);
+        const response = await api.get(`/reports/${applicantId}`);
         setReportData(response.data);
       } catch (err) {
         setError(err.response?.data?.error || 'An unexpected error occurred while fetching the report.');

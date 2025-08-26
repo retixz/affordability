@@ -6,21 +6,19 @@ const USAGE_LIMITS = {
     pro: 20,
     business: 100,
 };
-const db = require('../db');
+const db = require('../utils/db');
 
 const createCheck = async (req, res) => {
   const { fullName, email } = req.body;
   const { landlordId } = req;
 
-  let client;
   try {
-    client = await db.getClient();
     const now = new Date();
     const month = now.getMonth() + 1;
     const year = now.getFullYear();
 
     // Usage Metering Logic
-    const landlordRes = await client.query('SELECT subscription_plan, subscription_status FROM landlords WHERE id = $1', [landlordId]);
+    const landlordRes = await db.query('SELECT subscription_plan, subscription_status FROM landlords WHERE id = $1', [landlordId]);
     if (landlordRes.rows.length === 0) {
       return res.status(404).json({ error: 'Landlord not found.' });
     }
@@ -34,7 +32,7 @@ const createCheck = async (req, res) => {
     const plan = subscription_plan || 'starter';
     const limit = USAGE_LIMITS[plan];
 
-    const usageRes = await client.query('SELECT check_count FROM usage_records WHERE landlord_id = $1 AND month = $2 AND year = $3', [landlordId, month, year]);
+    const usageRes = await db.query('SELECT check_count FROM usage_records WHERE landlord_id = $1 AND month = $2 AND year = $3', [landlordId, month, year]);
 
     let check_count = 0;
     if (usageRes.rows.length > 0) {
@@ -54,7 +52,7 @@ const createCheck = async (req, res) => {
       RETURNING id;
     `;
     const values = [fullName, email, landlordId, token];
-    await client.query(query, values);
+    await db.query(query, values);
 
     // Increment usage record
     const upsertUsageQuery = `
@@ -63,7 +61,7 @@ const createCheck = async (req, res) => {
       ON CONFLICT (landlord_id, month, year)
       DO UPDATE SET check_count = usage_records.check_count + 1;
     `;
-    await client.query(upsertUsageQuery, [landlordId, month, year]);
+    await db.query(upsertUsageQuery, [landlordId, month, year]);
 
     const secureLink = `https://${process.env.PORTAL_HOST}/check/${token}`;
 
@@ -71,10 +69,6 @@ const createCheck = async (req, res) => {
   } catch (error) {
     console.error('Database error:', error);
     return res.status(500).json({ error: 'Internal Server Error' });
-  } finally {
-    if (client) {
-      await client.end();
-    }
   }
 };
 
