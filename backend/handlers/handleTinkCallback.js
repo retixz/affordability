@@ -49,13 +49,13 @@ const handleTinkCallback = async (req, res) => {
     // Immediately update the applicant's status to 'in_progress'
     await db.query("UPDATE applicants SET status = 'in_progress' WHERE id = $1", [applicantId]);
 
-    // Step 5: Redirect the user to a success page.
-    const successUrl = `${process.env.FRONTEND_URL}/check/success`;
-    return res.redirect(successUrl);
+    // Step 5: Respond to the frontend.
+    return res.status(200).json({ success: true, message: 'Tink flow completed successfully.' });
 
   } catch (error) {
     console.error('Error in Tink callback handler:', error.response ? error.response.data : error.message);
-    return res.status(500).json({ error: 'An error occurred during the Tink flow.' });
+    const successUrl = `${process.env.FRONTEND_URL}/check/error`;
+    return res.status(500).json({ success: false, error: 'An error occurred during the Tink flow.' });
   }
 };
 
