@@ -14,7 +14,30 @@ const createCheck = async (req, res) => {
     const year = now.getFullYear();
 
     // Usage Metering Logic
-    // ... (omitted for brevity, no changes here)
+    const landlordRes = await db.query('SELECT subscription_status, usage_limit FROM landlords WHERE id = $1', [landlordId]);
+    if (landlordRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Landlord not found.' });
+    }
+
+    const { subscription_status, usage_limit } = landlordRes.rows[0];
+
+    if (subscription_status !== 'active') {
+      return res.status(403).json({ error: 'Subscription not active.' });
+    }
+
+    const limit = usage_limit;
+
+    const usageRes = await db.query('SELECT check_count FROM usage_records WHERE landlord_id = $1 AND month = $2 AND year = $3', [landlordId, month, year]);
+
+    let check_count = 0;
+    if (usageRes.rows.length > 0) {
+      check_count = usageRes.rows[0].check_count;
+    }
+
+    if (check_count >= limit) {
+      return res.status(403).json({ error: 'Usage limit reached.' });
+    }
+    // End of Usage Metering Logic
 
     // Salt Edge API Integration
     const customerResponse = await axios.post('https://www.saltedge.com/api/v5/customers', {
@@ -57,7 +80,14 @@ const createCheck = async (req, res) => {
     const values = [fullName, email, landlordId, token, customerId, connectUrl];
     await db.query(query, values);
 
-    // ... (omitted for brevity, no changes here)
+    // Increment usage record
+    const upsertUsageQuery = `
+      INSERT INTO usage_records (landlord_id, month, year, check_count)
+      VALUES ($1, $2, $3, 1)
+      ON CONFLICT (landlord_id, month, year)
+      DO UPDATE SET check_count = usage_records.check_count + 1;
+    `;
+    await db.query(upsertUsageQuery, [landlordId, month, year]);
 
     const secureLink = `${process.env.FRONTEND_URL}/check/${token}`;
 
