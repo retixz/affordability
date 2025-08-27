@@ -4,7 +4,6 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import Dashboard from './components/Dashboard';
 import ApplicantPortal from './components/ApplicantPortal';
-import TinkCallback from './components/TinkCallback';
 import SuccessPage from './components/SuccessPage';
 import ReportView from './components/ReportView';
 import Login from './components/Login';
@@ -14,6 +13,7 @@ import LandingPage from './pages/LandingPage';
 import Billing from './pages/Billing';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentCanceled from './pages/PaymentCanceled';
+import SaltEdgeReturn from './components/SaltEdgeReturn';
 import './App.css';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
@@ -27,20 +27,20 @@ function App() {
             {/* Public routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-            <Route path="/callback/tink" element={<TinkCallback />} />
-          <Route path="/check/success" element={<SuccessPage />} />
-          <Route path="/check/:token" element={<ApplicantPortal />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/saltedge-return" element={<SaltEdgeReturn />} />
+            <Route path="/check/success" element={<SuccessPage />} />
+            <Route path="/check/:token" element={<ApplicantPortal />} />
 
-          {/* Protected routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/report/:applicantId" element={<ReportView />} />
-            <Route path="/billing" element={<Billing />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/payment-canceled" element={<PaymentCanceled />} />
-          </Route>
-        </Routes>
+            {/* Protected routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/report/:applicantId" element={<ReportView />} />
+              <Route path="/billing" element={<Billing />} />
+              <Route path="/payment-success" element={<PaymentSuccess />} />
+              <Route path="/payment-canceled" element={<PaymentCanceled />} />
+            </Route>
+          </Routes>
         </Elements>
       </div>
     </Router>

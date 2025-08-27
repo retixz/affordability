@@ -19,11 +19,12 @@ provider:
   #     statements:
   #       - Effect: "Allow"
   #         Action: "lambda:InvokeFunction"
-  #         Resource: "arn:aws:lambda:${aws:region}:${aws:accountId}:function:${self:service}-${sls:stage}-processTinkData"
+  #         Resource: "arn:aws:lambda:${aws:region}:${aws:accountId}:function:${self:service}-${sls:stage}-processSaltEdgeData"
 
   environment:
-    TINK_CLIENT_ID: ${env:TINK_CLIENT_ID}
-    TINK_CLIENT_SECRET: ${env:TINK_CLIENT_SECRET}
+    SALTEDGE_APP_ID: ${env:SALTEDGE_APP_ID}
+    SALTEDGE_SECRET: ${env:SALTEDGE_SECRET}
+    SALTEDGE_PUBLIC_KEY: ${env:SALTEDGE_PUBLIC_KEY}
     FRONTEND_URL: ${env:FRONTEND_URL}
     JWT_SECRET: ${env:JWT_SECRET}
     JWT_EXPIRATION_TIME: ${env:JWT_EXPIRATION_TIME}
@@ -40,5 +41,5 @@ functions:
           method: '*'
 
   # This function is not triggered by HTTP and is used for background processing.
-  processTinkData:
-    handler: handlers/processTinkData.processTinkData
+  processSaltEdgeData:
+    handler: handlers/processSaltEdgeData.processSaltEdgeData

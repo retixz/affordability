@@ -33,13 +33,13 @@ This project is configured for a simple, one-command startup process.
         ```bash
         cp backend/.env.example backend/.env
         ```
-        Then, fill in the required values in `backend/.env`. The `FRONTEND_URL` should be set to `http://localhost:3000` for local development. You will also need to provide your `TINK_CLIENT_ID`, `TINK_CLIENT_SECRET`, `STRIPE_SECRET_KEY`, and `STRIPE_WEBHOOK_SECRET`.
+        Then, fill in the required values in `backend/.env`. The `FRONTEND_URL` should be set to `http://localhost:3000` for local development. You will also need to provide your `SALTEDGE_APP_ID`, `SALTEDGE_SECRET`, `SALTEDGE_PUBLIC_KEY`, `STRIPE_SECRET_KEY`, and `STRIPE_WEBHOOK_SECRET`.
 
     *   **Frontend:** Copy `frontend/.env.example` to `frontend/.env`.
         ```bash
         cp frontend/.env.example frontend/.env
         ```
-        Then, fill in the required `REACT_APP_TINK_CLIENT_ID` and `REACT_APP_STRIPE_PUBLIC_KEY` in `frontend/.env`.
+        Then, fill in the required `REACT_APP_STRIPE_PUBLIC_KEY` in `frontend/.env`.
 
 3.  **Install All Dependencies:**
     From the **root directory** of the project, run:
