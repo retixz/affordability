@@ -11,13 +11,13 @@ const TinkCallback = () => {
   useEffect(() => {
     const handleReportsCallback = async () => {
         const queryParams = new URLSearchParams(location.search);
-        const incomeCheckId = queryParams.get('income_check_id');
-        const expenseCheckId = queryParams.get('expense_check_id');
+        const incomeCheckReportId = queryParams.get('income_check_report_id');
+        const expenseCheckReportId = queryParams.get('expense_check_report_id');
         const state = queryParams.get('state');
 
-        if (incomeCheckId && expenseCheckId && state) {
+        if (incomeCheckReportId && expenseCheckReportId && state) {
             try {
-                await api.post('/process-reports', { incomeCheckId, expenseCheckId, state });
+                await api.post('/process-reports', { incomeCheckReportId, expenseCheckReportId, state });
                 navigate('/check/success');
             } catch (error) {
                 setError("Failed to process affordability reports.");
