@@ -9,27 +9,32 @@ const TinkCallback = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const processTinkCallback = async () => {
-      const queryParams = new URLSearchParams(location.search);
-      const code = queryParams.get('code');
-      const state = queryParams.get('state');
+    const handleReportsCallback = async () => {
+        const queryParams = new URLSearchParams(location.search);
+        const incomeCheckId = queryParams.get('income_check_id');
+        const expenseCheckId = queryParams.get('expense_check_id');
+        const state = queryParams.get('state');
 
-      if (!code || !state) {
-        setError('Invalid callback parameters.');
-        setLoading(false);
-        return;
-      }
-
-      try {
-        await api.get(`/callback/tink?code=${code}&state=${state}`);
-        navigate('/check/success');
-      } catch (err) {
-        setError('Failed to complete the secure check. Please try again.');
-        setLoading(false);
-      }
+        if (incomeCheckId && expenseCheckId && state) {
+            try {
+                await api.post('/process-reports', { incomeCheckId, expenseCheckId, state });
+                navigate('/check/success');
+            } catch (error) {
+                setError("Failed to process affordability reports.");
+                setLoading(false);
+            }
+        } else {
+            const error = queryParams.get('error');
+            const message = queryParams.get('message');
+            if (error) {
+                setError(`An error occurred: ${error} - ${message}`);
+            } else {
+                setError('Invalid callback parameters.');
+            }
+            setLoading(false);
+        }
     };
-
-    processTinkCallback();
+    handleReportsCallback();
   }, [location, navigate]);
 
   if (loading) {
