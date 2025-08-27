@@ -5,9 +5,9 @@ const db = require('../utils/db');
 const { processAffordabilityV3 } = require('./processAffordabilityV3');
 
 const handleReportCallback = async (req, res) => {
-  const { incomeCheckReportId, expenseCheckReportId, state: secureLinkToken } = req.body;
+  const { income_check_id, expense_check_id, state: secureLinkToken } = req.body;
 
-  if (!incomeCheckReportId || !expenseCheckReportId || !secureLinkToken) {
+  if (!income_check_id || !expense_check_id || !secureLinkToken) {
     return res.status(400).json({ error: 'Missing required report IDs or state token.' });
   }
 
@@ -36,11 +36,11 @@ const handleReportCallback = async (req, res) => {
     const accessToken = tokenResponse.data.access_token;
 
     // Step 3: Fetch the Income Check and Expense Check reports.
-    const fetchIncomeReport = axios.get(`https://api.tink.com/risk/v1/income-checks/${incomeCheckReportId}`, {
+    const fetchIncomeReport = axios.get(`https://api.tink.com/risk/v1/income-checks/${income_check_id}`, {
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
 
-    const fetchExpenseReport = axios.get(`https://api.tink.com/risk/v1/expense-checks/${expenseCheckReportId}`, {
+    const fetchExpenseReport = axios.get(`https://api.tink.com/risk/v1/expense-checks/${expense_check_id}`, {
         headers: { 'Authorization': `Bearer ${accessToken}` }
     });
 
