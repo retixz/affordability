@@ -1,4 +1,45 @@
-# Affordability Algorithm v2.0
+# Affordability Algorithm v3.0
+
+## Overview
+
+The Affordability Algorithm v3.0 is the latest iteration, designed for maximum reliability, speed, and maintainability. This version moves away from manual transaction processing (V1 and V2) and instead consumes standardized, pre-processed reports from Tink's **Income Check** and **Expense Check** products.
+
+This new approach eliminates the complexity and potential inaccuracies of analyzing raw transaction data. Instead, we rely on Tink's purpose-built engines to verify income and categorize expenses, resulting in a more robust and trustworthy assessment.
+
+## Core Logic: Report-Based Analysis
+
+The V3 algorithm directly ingests two key reports:
+
+1.  **Tink Income Check Report**: A JSON report containing verified income sources, amounts, and stability assessments.
+2.  **Tink Expense Check Report**: A JSON report containing a detailed breakdown of expenses, categorized by Tink's engine.
+
+### Key Data Points
+
+The algorithm extracts the following top-level figures from the reports:
+
+-   **Total Verified Monthly Income**: Sourced from the Income Check report (`report.income.summary.total.amount`). This represents the net monthly income that Tink has verified with high confidence.
+-   **Total Monthly Expenses**: Sourced from the Expense Check report (`report.expense.summary.totalExpenses.amount`). This represents the sum of all categorized recurring and non-recurring expenses.
+
+## Score Calculation
+
+The scoring formula remains consistent with previous versions to ensure continuity in assessment, but it is now calculated using the highly reliable, pre-processed totals from the Tink reports.
+
+1.  **Define Inputs**:
+    - `verified_income_monthly` = The total verified monthly income from the Income Check report.
+    - `verified_expenses_monthly` = The total monthly expenses from the Expense Check report.
+
+2.  **Calculate Disposable Income Ratio**:
+    - `disposable_ratio` = (`verified_income_monthly` - `verified_expenses_monthly`) / `verified_income_monthly`
+
+3.  **Final Score**:
+    - `affordability_score` = `disposable_ratio` * 10
+
+The score is clamped to a range of **0.00 to 10.00**. A higher score indicates a greater ability for the applicant to comfortably cover their expenses.
+
+---
+
+<details>
+<summary>Archived: Algorithm v2.0</summary>
 
 ## Overview
 
@@ -58,3 +99,5 @@ The final affordability score is calculated using the same formula as V1, but is
     - `affordability_score` = `disposable_ratio` * 10
 
 The score is clamped to be within a range of 0.00 to 10.00. A higher score indicates a greater ability to comfortably cover expenses.
+
+</details>
