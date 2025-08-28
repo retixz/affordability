@@ -31,10 +31,13 @@ const { getReport } = require('./handlers/getReport');
 const { handleReportCallback } = require('./handlers/handleReportCallback');
 const { createCheckoutSession, stripeWebhook, getSubscription, createPortalSession, getAccountStatus } = require('./handlers/stripe');
 const { validateCheck } = require('./handlers/validateCheck');
+const { saltedgeWebhook } = require('./handlers/saltedgeWebhook');
 
 
 // Routes
 app.post('/stripe-webhook', express.raw({type: 'application/json'}), stripeWebhook);
+app.post('/saltedge-webhook', express.raw({type: 'application/json'}), saltedgeWebhook);
+
 
 app.post('/register', express.json(), authLimiter, validate(registerSchema), register);
 app.post('/login', express.json(), authLimiter, validate(loginSchema), login);
@@ -48,4 +51,6 @@ app.get('/subscription', authorize, getSubscription);
 app.post('/create-portal-session', authorize, createPortalSession);
 app.get('/account/status', authorize, getAccountStatus);
 
-module.exports.handler = serverless(app);
+module.exports.handler = serverless(app, {
+  binary: ['image/*']
+});

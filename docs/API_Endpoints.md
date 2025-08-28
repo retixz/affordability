@@ -39,8 +39,8 @@ This document provides details on the available API endpoints for the Affordabil
     -   **Body:**
         ```json
         {
-          "full_name": "string",
-          "company_name": "string"
+          "company_name": "string",
+          "secureLink": "string"
         }
         ```
 -   **Error Responses:**
@@ -70,19 +70,16 @@ This document provides details on the available API endpoints for the Affordabil
 
 ---
 
-### 4. Handle Bank Data Callback
+### 4. Salt Edge Webhook
 
--   **Method & Path:** `GET /callback/tink`
--   **Purpose:** This is the redirect URI that the bank data aggregator (Tink) calls after the user has successfully authenticated. It handles the exchange of the authorization code for an access token and queues the data processing. The user is then redirected to a success page.
--   **Query Parameters:**
-    -   `code`: The authorization code from the aggregator.
-    -   `state`: The original `secure_link_token` for the applicant.
+-   **Method & Path:** `POST /saltedge-webhook`
+-   **Purpose:** Handles incoming webhooks from Salt Edge to notify our application of events, such as a successful or failed connection. This endpoint is public but secured by verifying the Salt Edge signature.
+-   **Request Body:**
+    -   The request body is a Salt Edge event object.
 -   **Success Response:**
-    -   **Code:** `302 Found` (Redirect)
-    -   **Headers:** `Location: https://<your-portal-domain>/check/success`
+    -   **Code:** `200 OK`
 -   **Error Responses:**
-    -   `400 Bad Request`: If the `code` is missing.
-    -   `500 Internal Server Error`: For failures during the token exchange or data fetching process.
+    -   `400 Bad Request`: If the Salt Edge signature is invalid.
 
 ---
 

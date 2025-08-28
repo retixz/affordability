@@ -45,30 +45,34 @@ The score is clamped to a range of **0.00 to 10.00**. A higher score indicates a
 
 The Affordability Algorithm v2.0 represents a significant architectural shift from the initial version. The V1 algorithm relied on a basic keyword search of transaction descriptions, which proved to be unreliable for production use due to the variance in transaction descriptions and languages.
 
-Version 2.0 has been completely rebuilt to leverage the standardized transaction categorization provided by the Tink API. This provides a much more accurate and robust foundation for assessing an applicant's financial stability.
+Version 2.0 has been completely rebuilt to leverage the standardized transaction categorization provided by the Salt Edge API. This provides a much more accurate and robust foundation for assessing an applicant's financial stability.
 
 ## Core Logic: Category-Based Analysis
 
-Instead of searching for keywords like "salary" or "rent", the V2 algorithm analyzes transactions based on their assigned `categoryCode` from Tink.
+Instead of searching for keywords like "salary" or "rent", the V2 algorithm analyzes transactions based on their assigned `category` from Salt Edge.
 
 ### Income Categories
 
-The following Tink category codes are defined as stable sources of income:
+The following Salt Edge categories are defined as stable sources of income:
 
-- `income:salary`
-- `income:government-benefits`
-- `income:pension`
+- `Salary`
+- `Government Benefits`
+- `Pension`
+
+*(Note: These are initial placeholder categories and may be subject to change based on the most common categories returned by the Salt Edge API for the target market.)*
 
 ### Expense Categories
 
-The following Tink category codes are defined as essential, recurring expenses:
+The following Salt Edge categories are defined as essential, recurring expenses:
 
-- `expenses:rent`
-- `expenses:mortgage`
-- `expenses:utilities`
-- `expenses:insurance`
-- `expenses:loan-repayment`
-- `expenses:childcare`
+- `Rent`
+- `Mortgage`
+- `Utilities`
+- `Insurance`
+- `Loan Repayment`
+- `Childcare`
+
+*(Note: These are initial placeholder categories and may be subject to change.)*
 
 ## Key Feature: Stability Analysis
 

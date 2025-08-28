@@ -20,7 +20,10 @@ CREATE TABLE applicants (
     email VARCHAR(255) NOT NULL,
     secure_link_token VARCHAR(255) UNIQUE NOT NULL,
     status VARCHAR(50) DEFAULT 'pending', -- e.g., pending, complete, expired
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    saltedge_customer_id VARCHAR(255),
+    saltedge_connection_id VARCHAR(255),
+    saltedge_connect_url TEXT
 );
 
 -- Table to store the results of the affordability checks
