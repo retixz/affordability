@@ -95,7 +95,7 @@ async function saveReport(applicantId, score, income, expenses, flags, rawData) 
 module.exports.processSaltEdgeData = async (connectionId, customerId) => {
     try {
         // Step 1: Fetch accounts for the connection
-        const accountsResponse = await axios.get(`https://www.saltedge.com/api/v5/accounts?connection_id=${connectionId}`, {
+        const accountsResponse = await axios.get(`https://www.saltedge.com/api/v6/accounts?connection_id=${connectionId}`, {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ module.exports.processSaltEdgeData = async (connectionId, customerId) => {
         // Step 2: Fetch transactions for each account
         let allTransactions = [];
         for (const account of accounts) {
-            const transactionsResponse = await axios.get(`https://www.saltedge.com/api/v5/transactions?connection_id=${connectionId}&account_id=${account.id}`, {
+            const transactionsResponse = await axios.get(`https://www.saltedge.com/api/v6/transactions?connection_id=${connectionId}&account_id=${account.id}`, {
                  headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',

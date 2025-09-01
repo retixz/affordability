@@ -74,6 +74,7 @@ This document provides details on the available API endpoints for the Affordabil
 
 -   **Method & Path:** `POST /saltedge-webhook`
 -   **Purpose:** Handles incoming webhooks from Salt Edge to notify our application of events, such as a successful or failed connection. This endpoint is public but secured by verifying the Salt Edge signature.
+-   **Note:** The integration is using **Salt Edge API V6**.
 -   **Request Body:**
     -   The request body is a Salt Edge event object.
 -   **Success Response:**
