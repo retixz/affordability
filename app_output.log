@@ -1,0 +1,28 @@
+
+> affordability-api-monorepo@1.0.0 dev
+> concurrently "npm:start:db" "npm:start:backend" "npm:start:frontend"
+
+[start:db]
+[start:db] > affordability-api-monorepo@1.0.0 start:db
+[start:db] > docker run --name affordability-db -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 -d postgres || docker start affordability-db
+[start:db]
+[start:frontend]
+[start:frontend] > affordability-api-monorepo@1.0.0 start:frontend
+[start:frontend] > cd frontend && npm start
+[start:frontend]
+[start:backend]
+[start:backend] > affordability-api-monorepo@1.0.0 start:backend
+[start:backend] > cd backend && serverless offline start
+[start:backend]
+[start:backend] sh: 1: serverless: not found
+[start:backend] npm run start:backend exited with code 127
+[start:frontend]
+[start:frontend] > frontend@0.1.0 start
+[start:frontend] > react-scripts start
+[start:frontend]
+[start:db] docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied
+[start:db]
+[start:db] Run 'docker run --help' for more information
+[start:db] permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Post "http://%2Fvar%2Frun%2Fdocker.sock/v1.51/containers/affordability-db/start": dial unix /var/run/docker.sock: connect: permission denied
+[start:db] Error: failed to start containers: affordability-db
+[start:db] npm run start:db exited with code 1

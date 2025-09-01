@@ -10,7 +10,7 @@ The application is composed of four primary components:
 2. **Backend (Application Tier):** A **serverless API built with Node.js and the Serverless Framework**, running on **AWS Lambda**. This is the core of the application, handling all business logic, data processing, authentication, and communication with external services. Each function is an independent, stateless unit.  
 3. **Database (Data Tier):** A managed **PostgreSQL** instance. This serves as our single source of truth, securely storing all application data, including user accounts, applicant information, and the final affordability reports.  
 4. **External Services (Third-Party Tier):** We integrate with two critical third-party services:  
-   * **Salt Edge:** Our licensed Open Banking aggregator, used to securely connect to applicants' bank accounts and retrieve financial data.
+   * **Salt Edge:** Our licensed Open Banking aggregator, used to securely connect to applicants' bank accounts and retrieve financial data. The integration uses **Salt Edge API V6**.
    * **Stripe:** Our payment gateway, used to manage all aspects of landlord subscriptions and billing.
 
 ## **High-Level Data Flow Diagram**

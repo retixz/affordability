@@ -40,7 +40,7 @@ const createCheck = async (req, res) => {
     // End of Usage Metering Logic
 
     // Salt Edge API Integration
-    const customerResponse = await axios.post('https://www.saltedge.com/api/v5/customers', {
+    const customerResponse = await axios.post('https://www.saltedge.com/api/v6/customers', {
       data: { identifier: email }
     }, {
       headers: {
@@ -53,12 +53,16 @@ const createCheck = async (req, res) => {
 
     const customerId = customerResponse.data.data.id;
 
-    const connectSessionResponse = await axios.post('https://www.saltedge.com/api/v5/connect_sessions/create', {
+    const connectSessionResponse = await axios.post('https://www.saltedge.com/api/v6/connections/connect', {
       data: {
         customer_id: customerId,
-        consent: { scopes: ['account_details', 'transactions_details'] },
-        attempt: { fetch_scopes: ['accounts', 'transactions'] },
-        return_to: `${process.env.FRONTEND_URL}/saltedge-return`
+        consent: {
+          scopes: ['accounts', 'transactions']
+        },
+        attempt: {
+          fetch_scopes: ['accounts', 'transactions'],
+          return_to: `${process.env.FRONTEND_URL}/saltedge-return`
+        }
       }
     }, {
       headers: {
