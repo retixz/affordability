@@ -12,7 +12,9 @@ const getReport = async (req, res) => {
         a.full_name,
         ar.affordability_score,
         ar.verified_income_monthly,
-        ar.verified_expenses_monthly
+        ar.verified_expenses_monthly,
+        ar.flags,
+        ar.report_data
       FROM applicants a
       JOIN affordability_reports ar ON a.id = ar.applicant_id
       WHERE a.id = $1 AND a.landlord_id = $2;
@@ -24,7 +26,18 @@ const getReport = async (req, res) => {
       return res.status(404).json({ error: 'Report not found or you do not have permission to view it.' });
     }
 
-    return res.status(200).json(rows[0]);
+    const report = rows[0];
+    const response = {
+      applicantName: report.full_name,
+      affordabilityScore: parseFloat(report.affordability_score),
+      verifiedIncomeMonthly: parseFloat(report.verified_income_monthly),
+      verifiedExpensesMonthly: parseFloat(report.verified_expenses_monthly),
+      accountSummary: report.report_data.rawSaltEdgeData.summary,
+      flags: report.flags || [],
+      rawTinkData: report.report_data.rawSaltEdgeData,
+    };
+
+    return res.status(200).json(response);
   } catch (error) {
     console.error('Database error:', error);
     return res.status(500).json({ error: 'Internal Server Error' });

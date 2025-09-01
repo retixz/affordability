@@ -1,0 +1,44 @@
+.report-flags {
+  background-color: #fffbe6;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.flags-header {
+  display: flex;
+  align-items: center;
+  color: #b45309;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.flags-header .icon {
+  margin-right: 8px;
+}
+
+.flags-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.flag-item {
+  color: #374151;
+  margin-bottom: 8px;
+  padding-left: 24px;
+  position: relative;
+}
+
+.flag-item:before {
+  content: '👉';
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.flag-item strong {
+    text-transform: capitalize;
+}
