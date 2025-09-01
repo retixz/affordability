@@ -22,20 +22,20 @@ This project is configured for a simple, one-command startup process.
 
 1.  **Clone the Repository:**
     ```bash
-    git clone [https://github.com/retixz/affordability.git]
+    git clone [[https://github.com/retixz/affordability.git](https://github.com/retixz/affordability.git)]
     cd affordability-api
     ```
 
 2.  **Configure Environment Variables:**
     This project uses `.env` files for environment-specific configuration. Example files are provided in both the `backend` and `frontend` directories. **These `.env` files are included in `.gitignore` and should never be committed to version control.**
 
-    *   **Backend:** Copy `backend/.env.example` to `backend/.env`.
+    * **Backend:** Copy `backend/.env.example` to `backend/.env`.
         ```bash
         cp backend/.env.example backend/.env
         ```
-        Then, fill in the required values in `backend/.env`. The `FRONTEND_URL` should be set to `http://localhost:3000` for local development. You will also need to provide your `SALTEDGE_APP_ID`, `SALTEDGE_SECRET`, `SALTEDGE_PUBLIC_KEY`, `STRIPE_SECRET_KEY`, and `STRIPE_WEBHOOK_SECRET`.
+        Then, fill in the required values in `backend/.env`. The `FRONTEND_URL` should be set to `http://localhost:3000` for local development. You will also need to provide your `SALTEDGE_APP_ID`, `SALTEDGE_SECRET`, `STRIPE_SECRET_KEY`, and `STRIPE_WEBHOOK_SECRET`. For the `SALTEDGE_PUBLIC_KEY`, you will need to generate a key pair. See the **"Generating Keys for Salt Edge Webhook Verification"** section below for instructions.
 
-    *   **Frontend:** Copy `frontend/.env.example` to `frontend/.env`.
+    * **Frontend:** Copy `frontend/.env.example` to `frontend/.env`.
         ```bash
         cp frontend/.env.example frontend/.env
         ```
@@ -54,7 +54,7 @@ This project is configured for a simple, one-command startup process.
     # In the root directory, start the database
     npm run start:db
     ```
-    * Connect to the database (running on `localhost:5432`) with any SQL client and execute the contents of `Database_Schema.sql`.
+    * Connect to the database (running on `localhost:5432`) with any SQL client and execute the contents of `database/DatabaseSchema.sql`.
     * Then, run the following command to create a test landlord:
     ```sql
     INSERT INTO landlords (id, email, company_name, password_hash) VALUES (1, 'test@landlord.com', 'Test Properties Inc.', 'some_dummy_hash');
@@ -75,43 +75,56 @@ This project is configured for a simple, one-command startup process.
 ---
 
 ## End-to-End Testing with Payments & Webhooks
-To test the complete user subscription flow, you need to simulate Stripe sending webhook events to your local server. This requires the Stripe CLI.
+To test complete user flows, you need to simulate external services sending webhook events to your local server.
 
-### 1. First-Time Setup for Testing
-**Install Stripe CLI:** Follow the [official guide](https://stripe.com/docs/stripe-cli) to install the Stripe CLI for your operating system.
+### Testing Stripe Webhooks
+To test the complete user subscription flow, you need to use the Stripe CLI.
 
-**Login to Stripe:** Connect the CLI to your Stripe account by running:
-```bash
-stripe login
-```
+**1. First-Time Setup for Testing**
+* **Install Stripe CLI:** Follow the [official guide](https://stripe.com/docs/stripe-cli) to install the Stripe CLI for your operating system.
+* **Login to Stripe:** Connect the CLI to your Stripe account by running: `stripe login`
 
-### 2. Running the Test Environment
+**2. Running the Test Environment**
 You will need two separate terminals running simultaneously.
 
-**Terminal 1: Start the Application**
+* **Terminal 1: Start the Application**
+    In the project's root directory, run the standard development command: `npm run dev`
+* **Terminal 2: Start the Webhook Forwarding**
+    In the project's root directory, run the new webhook command: `npm run start:webhooks`
+    When this command runs for the first time, Stripe will provide a webhook signing secret (`whsec_...`). You must copy this secret and add it to your `backend/.env` file as `STRIPE_WEBHOOK_SECRET`. **Important:** You must restart your main application (Terminal 1) after adding the secret for it to be loaded.
 
-In the project's root directory, run the standard development command:
-```bash
-npm run dev
-```
-This will start the database, backend API, and frontend application.
+### Testing Salt Edge Webhooks
+To test the applicant data connection flow, Salt Edge needs to be able to send webhooks to your local server. You can use a tunneling service like **ngrok** for this.
 
-**Terminal 2: Start the Webhook Forwarding**
+1.  **Install ngrok:** Download and install ngrok from the [official website](https://ngrok.com/download).
+2.  **Start the Application:** Run `npm run dev` in a terminal. Your backend will be running on port 3001.
+3.  **Start ngrok:** In a new terminal, run the following command to create a public URL for your backend:
+    ```bash
+    ngrok http 3001
+    ```
+4.  **Configure Salt Edge:** ngrok will display a "Forwarding" URL (e.g., `https://<random-string>.ngrok.io`). Copy this URL and append the webhook path from your application: `https://<random-string>.ngrok.io/saltedge-webhook`. Paste this full URL into the webhook configuration section of your Salt Edge dashboard.
 
-In the project's root directory, run the new webhook command:
-```bash
-npm run start:webhooks
-```
-When this command runs for the first time, Stripe will provide a webhook signing secret (it looks like `whsec_...`). You must copy this secret.
+---
 
-Add the secret to your `backend/.env` file:
-```
-# backend/.env
-STRIPE_WEBHOOK_SECRET=whsec_...
-```
-**Important:** You must restart your main application (Terminal 1) after adding the secret for it to be loaded.
+## Generating Keys for Salt Edge Webhook Verification
 
-You are now ready to perform a full end-to-end test. When you complete a test payment in the frontend, you will see the event logs appear in Terminal 2.
+The application is configured to verify the cryptographic signature of incoming webhooks from Salt Edge for security. This requires a public/private key pair.
+
+1.  **Generate a Private Key (Keep this secret!):**
+    ```bash
+    openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048
+    ```
+    This creates a file named `private_key.pem`. Do not share this file.
+
+2.  **Extract the Public Key:**
+    ```bash
+    openssl rsa -in private_key.pem -pubout -out public_key.pem
+    ```
+    This creates a file named `public_key.pem` containing your public key.
+
+3.  **Configure the Keys:**
+    * **Salt Edge Dashboard:** Open `public_key.pem` and copy the entire content (including the `-----BEGIN...` and `-----END...` lines) into the "Public key (PEM format)" field in your Salt Edge dashboard.
+    * **`backend/.env` file:** Open `public_key.pem` again. Copy **only the long string of characters** between the header and footer lines and paste it as the value for `SALTEDGE_PUBLIC_KEY` in your `backend/.env` file.
 
 ---
 
@@ -119,9 +132,9 @@ You are now ready to perform a full end-to-end test. When you complete a test pa
 
 This project includes detailed documentation to assist developers and stakeholders. All documentation is located in the `/docs` directory.
 
-- **[ADR-001: Technology Stack Selection](./docs/ADR-001_Tech_Stack.md):** An Architectural Decision Record explaining the choices for the frontend, backend, and database technologies.
-- **[Database Schema](./docs/Database_Schema.md):** A detailed description of the PostgreSQL database schema, including table structures and relationships.
-- **[API Endpoints](./docs/API_Endpoints.md):** Comprehensive documentation for all available API endpoints.
+-   **[ADR-001: Technology Stack Selection](./docs/ADR-001_Tech_Stack.md):** An Architectural Decision Record explaining the choices for the frontend, backend, and database technologies.
+-   **[Database Schema](./docs/Database_Schema.md):** A detailed description of the PostgreSQL database schema, including table structures and relationships.
+-   **[API Endpoints](./docs/API_Endpoints.md):** Comprehensive documentation for all available API endpoints.
 
 ---
 
