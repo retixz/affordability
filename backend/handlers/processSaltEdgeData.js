@@ -3,18 +3,74 @@
 const db = require('../utils/db');
 const axios = require('axios');
 
+// New helper function to generate flags and summary
+function generateFlagsAndSummary(accounts, transactions, monthlyIncome, expenseCategories) {
+    const flags = [];
+    const summary = {
+        connectedAccounts: accounts.length,
+        totalTransactions: transactions.length,
+    };
+
+    // 1. LOW_TRANSACTION_VOLUME
+    if (transactions.length < 20) {
+        flags.push({
+            code: 'LOW_TRANSACTION_VOLUME',
+            message: 'The connected account shows very low activity, suggesting it may not be the applicant\'s primary account.'
+        });
+    }
+
+    // 2. NO_ESSENTIAL_EXPENSES
+    const hasEssentialExpenses = transactions.some(t => expenseCategories.includes(t.category) && t.amount < 0);
+    if (monthlyIncome > 0 && !hasEssentialExpenses) {
+        flags.push({
+            code: 'NO_ESSENTIAL_EXPENSES',
+            message: 'Stable income detected, but no corresponding essential living expenses like rent or utilities were found.'
+        });
+    }
+
+    // 3. LARGE_RECURRING_TRANSFERS
+    const transactionGroups = {};
+    transactions.forEach(t => {
+        if (t.amount < 0) { // Outgoing
+            if (!transactionGroups[t.description]) {
+                transactionGroups[t.description] = [];
+            }
+            transactionGroups[t.description].push(t);
+        }
+    });
+
+    for (const description in transactionGroups) {
+        const group = transactionGroups[description];
+        if (group.length >= 2) { // Simple check for recurrence
+            const monthlyAmounts = group.map(t => Math.abs(t.amount));
+            const averageAmount = monthlyAmounts.reduce((a, b) => a + b, 0) / monthlyAmounts.length;
+
+            if (monthlyIncome > 0 && averageAmount > (monthlyIncome * 0.2) && !expenseCategories.includes(group[0].category)) {
+                 flags.push({
+                    code: 'LARGE_RECURRING_TRANSFERS',
+                    message: `A recurring monthly transfer of around £${averageAmount.toFixed(2)} was detected, which may be used for paying bills from another account.`
+                });
+                break;
+            }
+        }
+    }
+
+    return { flags, summary };
+}
+
+
 // Helper function to handle database interaction
-async function saveReport(applicantId, score, income, expenses, rawData) {
+async function saveReport(applicantId, score, income, expenses, flags, rawData) {
   const client = await db.pool.connect();
   try {
     await client.query('BEGIN');
 
     const reportQuery = `
-      INSERT INTO affordability_reports (applicant_id, affordability_score, verified_income_monthly, verified_expenses_monthly, report_data)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO affordability_reports (applicant_id, affordability_score, verified_income_monthly, verified_expenses_monthly, flags, report_data)
+      VALUES ($1, $2, $3, $4, $5, $6)
     `;
     const reportData = rawData ? { rawSaltEdgeData: rawData } : null;
-    const reportValues = [applicantId, score, income, expenses, reportData];
+    const reportValues = [applicantId, score, income, expenses, JSON.stringify(flags), reportData];
     await client.query(reportQuery, reportValues);
 
     const updateQuery = `
@@ -67,7 +123,7 @@ module.exports.processSaltEdgeData = async (connectionId, customerId) => {
 
         // Step 3: Process the data
         const incomeCategories = ['Salary', 'Government Benefits', 'Pension'];
-        const expenseCategories = ['Rent', 'Mortgage', 'Utilities', 'Insurance', 'Loan Repayment', 'Childcare'];
+        const expenseCategories = ['Rent', 'Mortgage', 'Utilities', 'Insurance', 'Loan Repayment', 'Childcare', 'Groceries'];
 
         let totalIncome = 0;
         let totalExpenses = 0;
@@ -82,6 +138,8 @@ module.exports.processSaltEdgeData = async (connectionId, customerId) => {
 
         const verified_income_monthly = totalIncome / 3;
         const verified_expenses_monthly = totalExpenses / 3;
+
+        const { flags, summary } = generateFlagsAndSummary(accounts, allTransactions, verified_income_monthly, expenseCategories);
 
         let affordability_score;
         if (verified_income_monthly <= 0) {
@@ -102,7 +160,7 @@ module.exports.processSaltEdgeData = async (connectionId, customerId) => {
         const applicantId = applicantResult.rows[0].id;
 
         // Step 5: Save the report
-        await saveReport(applicantId, affordability_score, verified_income_monthly, verified_expenses_monthly, { transactions: allTransactions });
+        await saveReport(applicantId, affordability_score, verified_income_monthly, verified_expenses_monthly, flags, { transactions: allTransactions, summary: summary });
 
     } catch (error) {
         console.error('Error in processSaltEdgeData:', error.response ? error.response.data : error.message);
