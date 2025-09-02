@@ -41,7 +41,7 @@ function standardDeviation(numbers) {
  * @returns {object} The income stability score and average monthly income.
  */
 function calculateIncomeStability(transactions) {
-    const incomeKeywords = ['salariu', 'virament', 'incasare salariu', 'venituri', 'plata'];
+    const incomeKeywords = ['salariu', 'virament', 'incasare', 'venituri', 'plata', 'transfer', 'dividende', 'bonus', 'comision', 'onorariu', 'chirie', 'alocatie', 'pensii', 'indemnizatie', 'subventie'];
     const now = new Date();
     const twelveMonthsAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
 
@@ -103,7 +103,7 @@ function calculateDtiRatio(transactions, averageMonthlyIncome) {
         return 0;
     }
 
-    const debtKeywords = ['rata', 'credit', 'imprumut', 'leasing', 'card de credit', 'rambursare'];
+    const debtKeywords = ['rata', 'credit', 'imprumut', 'leasing', 'card de credit', 'rambursare', 'dobanda', 'finantare', 'ipoteca', 'rate', 'credite', 'imprumuturi', 'leasinguri', 'carduri de credit', 'rambursari', 'dobanzi', 'finantari', 'ipoteci'];
     const financialInstitutions = ['bcr', 'brd', 'banca transilvania', 'ing bank', 'raiffeisen bank', 'cec bank', 'unicredit bank', 'ocean credit', 'icredit romania', 'viva credit ifn', 'provident'];
     const now = new Date();
     const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());

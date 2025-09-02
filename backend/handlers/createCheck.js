@@ -51,7 +51,15 @@ const createCheck = async (req, res) => {
       }
     });
 
+    console.log("Customer Response:", customerResponse.data);
+    if (!customerResponse.data || !customerResponse.data.data || !customerResponse.data.data.customer_id) {
+      throw new Error('Failed to create or retrieve Salt Edge customer');
+    };
+
     const customerId = customerResponse.data.data.customer_id;
+    console.log("Customer ID:", customerId);
+
+    // Use the correct V6 endpoint: /connections/connect
     const connectSessionResponse = await axios.post('https://www.saltedge.com/api/v6/connections/connect', {
       data: {
         customer_id: customerId,
@@ -71,8 +79,17 @@ const createCheck = async (req, res) => {
         'Secret': process.env.SALTEDGE_SECRET
       }
     });
-    console.log('Created Salt Edge connect session.');
 
+    if (!connectSessionResponse.data || !connectSessionResponse.data.data || !connectSessionResponse.data.data.connect_url) {
+      throw new Error('Failed to create Salt Edge connect session');
+    };
+
+    console.log("Connect Session Response:", connectSessionResponse.data);
+    // if (!connectSessionResponse.data || !connectSessionResponse.data.data || !connectSessionResponse.data.data.redirect_url) {
+    //   throw new Error('Failed to create Salt Edge connect session');
+    // };
+
+    // 3. The connect URL is now at 'redirect_url' in the response
     const connectUrl = connectSessionResponse.data.data.connect_url;
     const token = crypto.randomBytes(32).toString('hex');
 

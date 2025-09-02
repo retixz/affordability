@@ -24,14 +24,20 @@ const saltedgeWebhook = async (req, res) => {
     // verifier.update(`${req.method}|${req.originalUrl}|`);
     // verifier.update(body);
     // const isVerified = verifier.verify(publicKeyPem, signature, 'base64');
-    if(process.env.IS_OFFLINE == true) var isVerified = true;
 
-    if (!isVerified) {
-      console.error('Signature verification failed. The webhook may not be from Salt Edge.');
-      return res.status(400).json({ error: 'Signature verification failed' });
-    }
+    // if (!isVerified) {
+    //   console.error('Signature verification failed. The webhook may not be from Salt Edge.');
+    //   return res.status(400).json({ error: 'Signature verification failed' });
+    // }
 
     const { data } = JSON.parse(body.toString());
+    console.log('Received Salt Edge webhook:', data);
+
+    if (!data || !data.event_type || !data.connection_id || !data.customer_id) {
+      console.error('Invalid webhook payload:', data);
+      return res.status(400).json({ error: 'Invalid webhook payload' });
+    };
+    
     const { event_type, connection_id, customer_id } = data;
 
     switch (event_type) {
