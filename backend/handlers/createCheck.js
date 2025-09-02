@@ -51,8 +51,7 @@ const createCheck = async (req, res) => {
       }
     });
 
-    const customerId = customerResponse.data.data.id;
-
+    const customerId = customerResponse.data.data.customer_id;
     const connectSessionResponse = await axios.post('https://www.saltedge.com/api/v6/connections/connect', {
       data: {
         customer_id: customerId,
@@ -72,6 +71,7 @@ const createCheck = async (req, res) => {
         'Secret': process.env.SALTEDGE_SECRET
       }
     });
+    console.log('Created Salt Edge connect session.');
 
     const connectUrl = connectSessionResponse.data.data.connect_url;
     const token = crypto.randomBytes(32).toString('hex');

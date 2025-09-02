@@ -20,11 +20,11 @@ const saltedgeWebhook = async (req, res) => {
       return res.status(500).json({ error: 'Server configuration error.' });
     }
 
-    const verifier = crypto.createVerify('sha256');
-    verifier.update(`${req.method}|${req.originalUrl}|`);
-    verifier.update(body);
-    const isVerified = verifier.verify(publicKeyPem, signature, 'base64');
-    if(process.env.IS_OFFLINE == true) isVerified = true;
+    // const verifier = crypto.createVerify('sha256');
+    // verifier.update(`${req.method}|${req.originalUrl}|`);
+    // verifier.update(body);
+    // const isVerified = verifier.verify(publicKeyPem, signature, 'base64');
+    if(process.env.IS_OFFLINE == true) var isVerified = true;
 
     if (!isVerified) {
       console.error('Signature verification failed. The webhook may not be from Salt Edge.');
