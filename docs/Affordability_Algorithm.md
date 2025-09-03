@@ -1,3 +1,38 @@
+# Affordability Algorithm v4.0 - Advanced Behavioral Analytics
+
+## Overview
+
+Version 4.0 builds upon the foundational metrics of income and debt by introducing a layer of advanced behavioral analysis. This version analyzes raw transaction data from Salt Edge to understand an applicant's financial habits, providing a more holistic view of their financial health. It introduces three key metrics: Behavioral Savings Rate, Financial Cushion, and a unified `flags` system.
+
+### Behavioral Savings Rate
+
+This metric calculates the percentage of net income that an applicant proactively saves. It identifies recurring outbound transfers that occur shortly after primary income deposits, indicating a disciplined savings habit.
+
+-   **Logic**: A transaction is considered a "savings" action if it is a recurring outbound transfer within 3 days of a primary income deposit.
+-   **Formula**: `(total_monthly_savings / average_net_monthly_income) * 100`
+
+### Financial Cushion
+
+This metric estimates an applicant's financial resilience by calculating how many months of essential expenses their stable cash buffer could cover.
+
+-   **Monthly Burn Rate**: Calculated by summing the monthly average of essential, non-discretionary expenses (e.g., rent, utilities, groceries).
+-   **Baseline Buffer**: The average end-of-month balance of all current accounts over the last 6 months.
+-   **Formula**: `baseline_buffer / monthly_burn_rate`
+
+### Financial Health Flags
+
+This system scans for and flags specific financial behaviors, categorized as 'red' for risks and 'green' for positive indicators. These are stored in the `flags` array.
+
+-   **Green Flags**:
+    -   `CONSISTENT_SAVINGS`: Generated if the `behavioral_savings_rate` is greater than 10%.
+-   **Red Flags (High Severity)**:
+    -   `PAYDAY_LOAN_USAGE`: Use of known payday lenders.
+    -   `HIGH_GAMBLING_SPEND`: Gambling spend exceeding 10% of net monthly income in any month.
+-   **Red Flags (Medium Severity)**:
+    -   `FREQUENT_OVERDRAFTS`: More than two overdraft-related events in the last 3 months.
+
+---
+
 # Affordability Algorithm v3.0
 
 ## Overview

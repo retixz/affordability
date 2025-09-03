@@ -7,7 +7,18 @@ const {
 } = require('./processAffordability');
 
 // Helper function to handle database interaction
-async function saveReport(applicantId, score, income, expenses, flags, rawData, incomeStabilityScore, enhancedDtiRatio) {
+async function saveReport(
+    applicantId,
+    score,
+    income,
+    expenses,
+    flags,
+    rawData,
+    incomeStabilityScore,
+    enhancedDtiRatio,
+    behavioralSavingsRate,
+    financialCushionMonths
+) {
     const client = await db.pool.connect();
     try {
         await client.query('BEGIN');
@@ -21,9 +32,11 @@ async function saveReport(applicantId, score, income, expenses, flags, rawData, 
         flags,
         report_data,
         income_stability_score,
-        enhanced_dti_ratio
+        enhanced_dti_ratio,
+        behavioral_savings_rate,
+        financial_cushion_months
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     `;
         const reportData = rawData ? {
             rawSaltEdgeData: rawData
@@ -36,7 +49,9 @@ async function saveReport(applicantId, score, income, expenses, flags, rawData, 
             JSON.stringify(flags),
             reportData,
             incomeStabilityScore,
-            enhancedDtiRatio
+            enhancedDtiRatio,
+            behavioralSavingsRate,
+            financialCushionMonths
         ];
         await client.query(reportQuery, reportValues);
 
@@ -92,8 +107,11 @@ module.exports.processSaltEdgeData = async (connectionId, customerId) => {
         const {
             income_stability_score,
             enhanced_dti_ratio,
-            average_monthly_income
-        } = processAffordability(allTransactions);
+            average_monthly_income,
+            behavioral_savings_rate,
+            financial_cushion_months,
+            flags
+        } = processAffordability(allTransactions, accounts);
 
         // The old affordability score is no longer the primary metric, but we can keep it for now.
         // Or we can create a new one based on the new metrics. For now, let's use a simplified version.
@@ -111,13 +129,12 @@ module.exports.processSaltEdgeData = async (connectionId, customerId) => {
         const applicantId = applicantResult.rows[0].id;
 
         // Step 5: Save the report
-        // We are passing 0 for expenses as it's not calculated anymore.
         await saveReport(
             applicantId,
             affordability_score,
             average_monthly_income,
             0, // Old expenses field, no longer used
-            [], // Old flags field, no longer used
+            flags,
             {
                 transactions: allTransactions,
                 summary: {
@@ -126,7 +143,9 @@ module.exports.processSaltEdgeData = async (connectionId, customerId) => {
                 }
             },
             income_stability_score,
-            enhanced_dti_ratio
+            enhanced_dti_ratio,
+            behavioral_savings_rate,
+            financial_cushion_months
         );
 
     } catch (error) {

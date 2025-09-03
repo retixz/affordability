@@ -50,6 +50,9 @@ Stores the results of the affordability checks.
 | `verified_expenses_monthly` | `NUMERIC(10, 2)`          | The applicant's verified average monthly recurring expenses.             |
 | `income_stability_score`    | `NUMERIC(5, 2)`           | A 0-100 score indicating the stability of the applicant's income.        |
 | `enhanced_dti_ratio`        | `NUMERIC(5, 2)`           | A transaction-verified debt-to-income ratio as a percentage.             |
+| `behavioral_savings_rate`   | `NUMERIC(5, 2)`           | The percentage of net income the applicant saves, as a percentage.       |
+| `financial_cushion_months`  | `NUMERIC(5, 2)`           | How many months of essential expenses the applicant's buffer can cover.  |
+| `flags`                     | `JSONB`                   | An array of objects detailing positive (green) or negative (red) financial behaviors. |
 | `report_data`               | `JSONB`                   | The raw, categorized data from the bank data aggregator (e.g., Salt Edge).|
 | `created_at`                | `TIMESTAMP WITH TIME ZONE`| Timestamp of when the report was generated.                              |
 
