@@ -38,7 +38,7 @@ const { saltedgeWebhook } = require('./handlers/saltedgeWebhook');
 
 // Routes
 app.post('/stripe-webhook', express.raw({type: 'application/json'}), stripeWebhook);
-app.post('/saltedge-webhook', express.raw({type: 'application/json'}), saltedgeWebhook);
+app.post('/saltedge-webhook', express.raw({type: '*/*'}), saltedgeWebhook);
 
 
 app.post('/register', express.json(), authLimiter, validate(registerSchema), register);

@@ -111,6 +111,7 @@ const createCheck = async (req, res) => {
     await db.query(upsertUsageQuery, [landlordId, month, year]);
 
     const secureLink = `${process.env.FRONTEND_URL}/check/${token}`;
+    console.log("Secure Link:", secureLink);
 
     return res.status(201).json({ secureLink });
   } catch (error) {
