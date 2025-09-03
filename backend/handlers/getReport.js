@@ -19,6 +19,8 @@ const getReport = async (req, res) => {
         ar.verified_expenses_monthly,
         ar.income_stability_score,
         ar.enhanced_dti_ratio,
+        ar.behavioral_savings_rate,
+        ar.financial_cushion_months,
         ar.flags,
         ar.report_data
       FROM applicants a
@@ -44,8 +46,10 @@ const getReport = async (req, res) => {
             verifiedExpensesMonthly: parseFloat(report.verified_expenses_monthly),
             incomeStabilityScore: parseFloat(report.income_stability_score),
             enhancedDtiRatio: parseFloat(report.enhanced_dti_ratio),
-            accountSummary: report.report_data.rawSaltEdgeData.summary,
+            behavioralSavingsRate: parseFloat(report.behavioral_savings_rate),
+            financialCushionMonths: parseFloat(report.financial_cushion_months),
             flags: report.flags || [],
+            accountSummary: report.report_data.rawSaltEdgeData.summary,
             rawTinkData: report.report_data.rawSaltEdgeData,
         };
 
