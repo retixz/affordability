@@ -33,6 +33,8 @@ CREATE TABLE affordability_reports (
     affordability_score NUMERIC(4, 2), -- The final score [cite: 62]
     verified_income_monthly NUMERIC(10, 2),
     verified_expenses_monthly NUMERIC(10, 2),
+    income_stability_score NUMERIC(5, 2),
+    enhanced_dti_ratio NUMERIC(5, 2),
     flags JSONB,
     report_data JSONB, -- To store the raw categorized data from the aggregator
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

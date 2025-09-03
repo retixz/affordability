@@ -48,6 +48,8 @@ Stores the results of the affordability checks.
 | `affordability_score`       | `NUMERIC(4, 2)`           | The final calculated affordability score, from 0.00 to 10.00.            |
 | `verified_income_monthly`   | `NUMERIC(10, 2)`          | The applicant's verified average monthly income.                         |
 | `verified_expenses_monthly` | `NUMERIC(10, 2)`          | The applicant's verified average monthly recurring expenses.             |
+| `income_stability_score`    | `NUMERIC(5, 2)`           | A 0-100 score indicating the stability of the applicant's income.        |
+| `enhanced_dti_ratio`        | `NUMERIC(5, 2)`           | A transaction-verified debt-to-income ratio as a percentage.             |
 | `report_data`               | `JSONB`                   | The raw, categorized data from the bank data aggregator (e.g., Salt Edge).|
 | `created_at`                | `TIMESTAMP WITH TIME ZONE`| Timestamp of when the report was generated.                              |
 

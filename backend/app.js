@@ -3,6 +3,8 @@ const serverless = require('serverless-http');
 const rateLimit = require('express-rate-limit');
 const app = express();
 
+app.set('trust proxy', 1);
+
 // Rate Limiting
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -36,7 +38,7 @@ const { saltedgeWebhook } = require('./handlers/saltedgeWebhook');
 
 // Routes
 app.post('/stripe-webhook', express.raw({type: 'application/json'}), stripeWebhook);
-app.post('/saltedge-webhook', express.raw({type: 'application/json'}), saltedgeWebhook);
+app.post('/saltedge-webhook', express.raw({type: '*/*'}), saltedgeWebhook);
 
 
 app.post('/register', express.json(), authLimiter, validate(registerSchema), register);
